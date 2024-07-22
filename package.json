@@ -5,11 +5,12 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsx watch src/app.ts",
-    "test": "jest -c jest.config.ts --no-cache --logHeapUsage",
+    "test": "jest -c jest.config.ts --no-cache --logHeapUsage"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@swc/jest": "^0.2.36",
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "jsonschema": "^1.4.1"

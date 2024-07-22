@@ -21,11 +21,14 @@ module.exports = {
   coverageReporters: ['text', 'lcov'],
   testMatch: ['**/tests/**/*.(spec|test).[jt]s?(x)'],
   moduleNameMapper: {
-      '@/tests/(.*)': '<rootDir>/tests/$1',
       '@/(.*)': '<rootDir>/src/$1',
+      '@/tests/(.*)': '<rootDir>/tests/$1',
   },
   transform: {
-      '^.+\\.(t|j)sx?$': ['@swc/jest'],
+      // '^.+\\.(t|j)sx?$': ['@swc/jest'],
+    '^.+\\.(t|j)sx?$': 'ts-jest'
   },
-
+  
+  include: ["src/**/*", "tests/**/*"],
+  exclude: [".build/**/*", "__coverage__/**/*", "webpack.config.js"]
 };
