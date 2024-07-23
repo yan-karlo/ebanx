@@ -1,28 +1,26 @@
-import { Account } from "@/domain/entities/Account";
 
-export class InMemoryDBStrategy {
-  private accountsTable: Account[] = [];
+export class InMemoryDBStrategy<T extends {id:string}> {
+  private table: Map<string, T> = new Map();
 
   constructor() {}
 
-  findAccountById(id: string): Account | undefined {
-    return this.accountsTable.find((account) => account.id === id);
+  async findById(id: string): Promise<T | undefined> {
+    return this.table.get(id);
   }
 
-  updateAccount(account: Account): Account | undefined {
-    const index = this.accountsTable.findIndex((acc) => acc.id === account.id);
-    if (index !== -1) {
-      this.accountsTable[index] = account;
-      return account;
+  async update(item: T): Promise<T | undefined> {
+    if (this.table.has(item.id)) {
+      this.table.set(item.id, item);
+      return item;
     }
+    return undefined;  }
+
+  async create(item: T): Promise<T> {
+    this.table.set(item.id, item);
+    return item;
   }
 
-  createAccount(account: Account): Account {
-    this.accountsTable.push(account);
-    return account;
-  }
-
-  reset(): void {
-    this.accountsTable = [];
+  async reset(): Promise<void> {
+    this.table.clear();
   }
 }
