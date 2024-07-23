@@ -1,16 +1,16 @@
-import { Account } from "@/entities/Account";
+import { Account } from "@/domain/entities/Account";
 
 export class InMemoryDBStrategy {
-  private accountsTable : Account[] = [];
+  private accountsTable: Account[] = [];
 
-  constructor(){}
+  constructor() {}
 
   findAccountById(id: string): Account | undefined {
-    return this.accountsTable.find(account => account.id === id);
+    return this.accountsTable.find((account) => account.id === id);
   }
 
   updateAccount(account: Account): Account | undefined {
-    const index = this.accountsTable.findIndex(acc => acc.id === account.id);
+    const index = this.accountsTable.findIndex((acc) => acc.id === account.id);
     if (index !== -1) {
       this.accountsTable[index] = account;
       return account;
@@ -19,11 +19,10 @@ export class InMemoryDBStrategy {
 
   createAccount(account: Account): Account {
     this.accountsTable.push(account);
-    return account
+    return account;
   }
- 
+
   reset(): void {
     this.accountsTable = [];
   }
-
 }

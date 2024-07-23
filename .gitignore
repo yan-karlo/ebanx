@@ -133,4 +133,4 @@ dist
 .pnp.*
 
 #Project issues
-.tests/__coverage__/
+tests/__coverage__
