@@ -1,5 +1,6 @@
+import { IDatabaseCRUD } from "@/application/interfaces/IDatabaseCRUD";
 
-export class InMemoryDBStrategy<T extends {id:string}> {
+export class InMemoryCRUDStrategy<T extends {id:string}> implements IDatabaseCRUD<T>{
   private table: Map<string, T> = new Map();
 
   constructor() {}

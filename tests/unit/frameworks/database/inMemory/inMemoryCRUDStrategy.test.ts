@@ -1,17 +1,17 @@
 import { Account } from "@/domain/entities/Account";
-import { InMemoryDBStrategy } from "@/infrastructure/database/inMemory/inMemoryDBStrategy";
+import { InMemoryCRUDStrategy } from "@/infrastructure/database/inMemory/inMemoryCRUDStrategy";
 
-const makeSut = (account : Account = 
+const makeSut = (account : Account =
    new Account("1", 100)
   ) => {
   return { account };
 };
 
 describe("In-Memory Database Strategy", () => {
-  var dbMemory: InMemoryDBStrategy<Account>;
+  var dbMemory: InMemoryCRUDStrategy<Account>;
 
   beforeAll(() => {
-    dbMemory = new InMemoryDBStrategy<Account>();
+    dbMemory = new InMemoryCRUDStrategy<Account>();
   });
   it("should create an account", async () => {
     var sut = makeSut();
@@ -42,7 +42,7 @@ describe("In-Memory Database Strategy", () => {
   it("should return undefined when updating an not existent user", async () => {
     var account = new Account(`${new Date().getMilliseconds()}`, 0);
     var acc = await dbMemory.update(account);
-    
+
     expect(acc).toBeUndefined();
   });
 
