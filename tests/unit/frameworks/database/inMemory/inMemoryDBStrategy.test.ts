@@ -1,68 +1,64 @@
 import { Account } from "@/domain/entities/Account";
 import { InMemoryDBStrategy } from "@/infrastructure/database/inMemory/inMemoryDBStrategy";
 
-const makeSut = () => {
-  var account: Account = {
-    id: "1",
-    balance: 100,
-  };
-
+const makeSut = (account : Account = 
+   new Account("1", 100)
+  ) => {
   return { account };
 };
 
 describe("In-Memory Database Strategy", () => {
-  var dbMemory: InMemoryDBStrategy;
+  var dbMemory: InMemoryDBStrategy<Account>;
 
   beforeAll(() => {
-    dbMemory = new InMemoryDBStrategy();
+    dbMemory = new InMemoryDBStrategy<Account>();
   });
-  it("should create an account", () => {
+  it("should create an account", async () => {
     var sut = makeSut();
 
-    var acc = dbMemory.createAccount(sut.account);
+    var acc = await dbMemory.create(sut.account);
     expect(acc.balance).toBe(sut.account.balance);
   });
 
-  it("should recover an account by Id", () => {
+  it("should recover an account by Id", async () => {
     var sut = makeSut();
-    dbMemory.createAccount(sut.account);
+    await dbMemory.create(sut.account);
 
-    var acc = dbMemory.findAccountById(sut.account.id);
+    var acc = await dbMemory.findById(sut.account.id);
     expect(acc).toBeDefined();
     expect(acc!.balance).toBe(sut.account.balance);
   });
 
-  it("should update an account by Id", () => {
+  it("should update an account by Id", async () => {
     var sut = makeSut();
-    dbMemory.createAccount(sut.account);
+    await dbMemory.create(sut.account);
     sut.account.balance = 200;
 
-    var acc = dbMemory.updateAccount(sut.account);
+    var acc = await dbMemory.update(sut.account);
     expect(acc).toBeDefined();
     expect(acc!.balance).toBe(200);
   });
 
-  it("should return undefined when updating an not existent user", () => {
-    var sut = makeSut();
-    sut.account.balance = 200;
-
-    var acc = dbMemory.updateAccount(sut.account);
+  it("should return undefined when updating an not existent user", async () => {
+    var account = new Account(`${new Date().getMilliseconds()}`, 0);
+    var acc = await dbMemory.update(account);
+    
     expect(acc).toBeUndefined();
   });
 
-  it("should return undefined when account not found", () => {
+  it("should return undefined when account not found", async () => {
     var sut = makeSut();
 
-    var acc = dbMemory.findAccountById("2");
+    var acc = await dbMemory.findById("2");
     expect(acc).toBeUndefined();
   });
 
-  it("Should reset the table", () => {
+  it("Should reset the table", async () => {
     var sut = makeSut();
-    dbMemory.createAccount(sut.account);
-    dbMemory.reset();
+    await dbMemory.create(sut.account);
+    await dbMemory.reset();
 
-    var acc = dbMemory.findAccountById(sut.account.id);
+    var acc = await dbMemory.findById(sut.account.id);
     expect(acc).toBeUndefined();
   });
 });
