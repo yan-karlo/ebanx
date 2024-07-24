@@ -5,6 +5,8 @@ module.exports = {
   collectCoverage: true,
   collectCoverageFrom: [
     "<rootDir>/src/**/*.ts",
+    "!<rootDir>/src/application/interfaces/**/*.ts",
+    "!<rootDir>/src/domain/entities/**/*.ts",
   ],
   coverageThreshold: {
       global: {
@@ -28,7 +30,7 @@ module.exports = {
       // '^.+\\.(t|j)sx?$': ['@swc/jest'],
     '^.+\\.(t|j)sx?$': 'ts-jest'
   },
-  
+
   include: ["src/**/*", "tests/**/*"],
   exclude: [".build/**/*", "__coverage__/**/*", "webpack.config.js"]
 };

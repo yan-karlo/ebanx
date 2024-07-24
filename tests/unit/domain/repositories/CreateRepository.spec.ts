@@ -1,5 +1,5 @@
 import { Account } from "@/domain/entities/Account";
-import { FindByIdRepository } from "@/domain/repositories/FindByIdRepository";
+import { CreateRepository } from "@/domain/repositories/CreateRepository";
 import { Database } from "@/infrastructure/database/Database";
 import { InMemoryCRUDStrategy } from '@/infrastructure/database/inMemory/inMemoryCRUDStrategy';
 
@@ -15,10 +15,11 @@ const makeSut = () => {
   const updateSpy = jest.spyOn(database, 'update').mockImplementation(() => result(account));
   const resetSpy = jest.spyOn(database, 'reset').mockImplementation();
 
-  const repository = new FindByIdRepository(database);
+  const repository = new CreateRepository(database);
 
   return {
     repository,
+    account,
     createSpy,
     updateSpy,
     findByIdSpy,
@@ -26,14 +27,14 @@ const makeSut = () => {
   }
 }
 
-describe("FindById Repository Generic Class Test", () => {
-  it('It should call the Database findById method and not others', async () => {
+describe("Create Repository Generic Class Test", () => {
+  it('It should call the Database create method and not others', async () => {
     var sut = makeSut();
-    const id = `${new Date().getMilliseconds()}`;
-    await sut.repository.run(id);
 
-    expect(sut.findByIdSpy).toHaveBeenCalledWith(id)
-    expect(sut.createSpy).not.toHaveBeenCalled()
+    await sut.repository.run(sut.account);
+
+    expect(sut.createSpy).toHaveBeenCalledWith(sut.account)
+    expect(sut.findByIdSpy).not.toHaveBeenCalled()
     expect(sut.updateSpy).not.toHaveBeenCalled()
     expect(sut.resetSpy).not.toHaveBeenCalled()
   });
