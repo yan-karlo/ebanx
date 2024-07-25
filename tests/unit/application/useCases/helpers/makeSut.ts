@@ -1,4 +1,6 @@
+import { GetBalanceUseCase } from "@/application/useCases/GetBalanceUseCase";
 import { MakeDepositUseCase } from "@/application/useCases/MakeDepositUseCase";
+import { MakeWithdrawUseCase } from "@/application/useCases/MakeWithdrawUseCase";
 import { Account } from "@/domain/entities/Account";
 import { CreateRepository } from "@/domain/repositories/CreateRepository";
 import { FindByIdRepository } from "@/domain/repositories/FindByIdRepository";
@@ -33,16 +35,28 @@ export var makeSut = (accountExists: boolean) => {
   const findByIdRepository = new FindByIdRepository<Account>(database);
   const findByIdRepositorySpy = jest.spyOn(findByIdRepository, 'run');
 
-  // Dependency Injection
+  // Use Cases Dependency Injection
   const makeDepositUseCase = new MakeDepositUseCase(
     database,
     createRepository,
     findByIdRepository,
     updateRepository
   );
+  const makeWithdrawUseCase = new MakeWithdrawUseCase(
+    database,
+    findByIdRepository,
+    updateRepository
+  );
+
+  const getBalanceUseCase = new GetBalanceUseCase(
+    database,
+    findByIdRepository,
+  );
 
   return {
     makeDepositUseCase,
+    makeWithdrawUseCase,
+    getBalanceUseCase,
     account,
     foundAccount,
     createRepositorySpy,

@@ -6,19 +6,18 @@ describe("Create Repository Generic Class Test", () => {
     var accountExists = true;
     var sut = makeSut(accountExists);
 
-    await sut.makeDepositUseCase.run(sut.account);
+    await sut.makeWithdrawUseCase.run(sut.account);
 
-    expect(sut.createRepositorySpy).not.toHaveBeenCalled();
     expect(sut.findByIdRepositorySpy).toHaveBeenCalledWith(sut.account.id);
-    expect(sut.updateRepositorySpy).toHaveBeenCalledWith(sut.foundAccount);
+    expect(sut.updateRepositorySpy).toHaveBeenCalledWith(sut.account);
   });
 
   it('It should call make a deposit using the right value', async () => {
     var accountExists = true;
     var sut = makeSut(accountExists);
-    var expectedFinalBalance = sut.account.balance + sut.foundAccount.balance;
+    var expectedFinalBalance = sut.foundAccount.balance - sut.account.balance ;
 
-    await sut.makeDepositUseCase.run(sut.account);
+    await sut.makeWithdrawUseCase.run(sut.account);
 
     expect(sut.foundAccount.balance).toEqual(expectedFinalBalance);
   });
@@ -27,9 +26,8 @@ describe("Create Repository Generic Class Test", () => {
     var accountExists = false;
     var sut = makeSut(accountExists);
 
-    await sut.makeDepositUseCase.run(sut.account);
+    await sut.makeWithdrawUseCase.run(sut.account);
 
-    expect(sut.createRepositorySpy).toHaveBeenCalledWith(sut.account);
     expect(sut.findByIdRepositorySpy).toHaveBeenCalledWith(sut.account.id);
     expect(sut.updateRepositorySpy).not.toHaveBeenCalled();
   });

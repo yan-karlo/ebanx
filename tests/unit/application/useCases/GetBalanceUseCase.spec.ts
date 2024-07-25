@@ -2,18 +2,7 @@ import exp from "constants";
 import { makeSut } from "./helpers/makeSut";
 
 describe("Create Repository Generic Class Test", () => {
-  it('It should call the update and findById repositories once the account exists', async () => {
-    var accountExists = true;
-    var sut = makeSut(accountExists);
-
-    await sut.makeDepositUseCase.run(sut.account);
-
-    expect(sut.createRepositorySpy).not.toHaveBeenCalled();
-    expect(sut.findByIdRepositorySpy).toHaveBeenCalledWith(sut.account.id);
-    expect(sut.updateRepositorySpy).toHaveBeenCalledWith(sut.foundAccount);
-  });
-
-  it('It should call make a deposit using the right value', async () => {
+  it('It should call get balance using the right value', async () => {
     var accountExists = true;
     var sut = makeSut(accountExists);
     var expectedFinalBalance = sut.account.balance + sut.foundAccount.balance;
