@@ -1,7 +1,9 @@
 import { GetBalanceUseCase } from "@/application/useCases/GetBalanceUseCase";
 import { MakeDepositUseCase } from "@/application/useCases/MakeDepositUseCase";
+import { MakeTransferUseCase } from "@/application/useCases/makeTransferUseCase";
 import { MakeWithdrawUseCase } from "@/application/useCases/MakeWithdrawUseCase";
 import { Account } from "@/domain/entities/Account";
+import { TransferEvent } from "@/domain/entities/TransferEvent";
 import { CreateRepository } from "@/domain/repositories/CreateRepository";
 import { FindByIdRepository } from "@/domain/repositories/FindByIdRepository";
 import { UpdateRepository } from "@/domain/repositories/UpdateRepository";
@@ -16,7 +18,7 @@ export var makeSut = (accountExists: boolean) => {
   const findByIdResult =
     async (id: string, accountExists: boolean = true): Promise<Account | undefined> => {
       return accountExists ? foundAccount : undefined
-  };
+    };
 
   //Mocking the database methods for not reaching the DB
   var inMemoryCRUDStrategy = new InMemoryCRUDStrategy<Account>();
@@ -63,6 +65,39 @@ export var makeSut = (accountExists: boolean) => {
     updateRepositorySpy,
     findByIdRepositorySpy,
   }
+}
 
+export var makeSutTransfer = (originExists: boolean, destinationExists: boolean) => {
+  const table = new InMemoryCRUDStrategy<Account>();
+  const origin = originExists ? new Account('2', 400) : undefined;
+  const destination = destinationExists ? new Account('1', 100) : undefined;
+  const finalOrigin = originExists ? new Account('2', 300) : undefined;
+  const finalDestination = destinationExists ? new Account('1', 200) : undefined;
 
+  const transferEvent = new TransferEvent('2', '1', 100);
+  const database = new Database<Account>(table);
+  const findByIdRepository = new FindByIdRepository<Account>(database);
+  const updateRepository = new UpdateRepository<Account>(database);
+  const updateRepositorySpy = jest.spyOn(updateRepository, 'run');
+  const findByIdRepositorySpy = jest.spyOn(findByIdRepository, 'run');
+
+  (findByIdRepository.run as jest.Mock)
+  .mockResolvedValueOnce(origin)
+  .mockResolvedValueOnce(destination);
+
+  (updateRepository.run as jest.Mock)
+  .mockImplementation(async (account: Account) => account);
+
+  const makeTransferUseCase = new MakeTransferUseCase(database, findByIdRepository, updateRepository);
+
+  return{
+    origin,
+    destination,
+    finalOrigin,
+    finalDestination,
+    transferEvent,
+    updateRepositorySpy,
+    findByIdRepositorySpy,
+    makeTransferUseCase,
+  }
 }
