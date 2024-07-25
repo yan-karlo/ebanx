@@ -1,5 +1,6 @@
 import { Account } from "@/domain/entities/Account";
+import { WithdrawEvent } from "@/domain/entities/WithdrawEvent";
 
 export interface IMakeWithdrawUseCase {
-  run(account : Account) : Promise<Account | undefined>;
+  run(account : WithdrawEvent) : Promise<Account | undefined>;
 }
