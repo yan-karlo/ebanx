@@ -1,5 +1,5 @@
-import { Account } from "@/domain/entities/Account";
+import { ResponseDTO } from "@/presentation/dtos/ResponseDTO";
 
 export interface IGetBalanceUseCase {
-  run(id: string) : Promise<Number | undefined>;
+  run(id: string) : Promise<ResponseDTO<number | undefined>>;
 }
