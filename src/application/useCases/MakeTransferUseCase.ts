@@ -1,18 +1,16 @@
 import { Account } from "@/domain/entities/Account";
-import { FindByIdRepository } from "@/domain/repositories/FindByIdRepository";
-import { UpdateRepository } from "@/domain/repositories/UpdateRepository";
-import { Database } from "@/infrastructure/database/Database";
 import { TransferEvent } from "@/domain/entities/TransferEvent";
 import { IMakeTransferUseCase } from "../interfaces/useCases/IMakeTransferUseCase";
 import { ResponseDTO } from "@/presentation/dtos/ResponseDTO";
 import { WithdrawResponseDTO } from "@/presentation/dtos/WithdrawResponseDTO";
 import { TransferResponseDTO } from "@/presentation/dtos/TransferResponseDTO";
+import { IFindByIdRepository } from "../interfaces/repositories/IFindByIdRepository";
+import { IUpdateRepository } from "../interfaces/repositories/IUpdateRepository";
 
 export class MakeTransferUseCase implements IMakeTransferUseCase {
   constructor(
-    private database = new Database<Account>(),
-    private findByIdRepository = new FindByIdRepository(this.database),
-    private updateRepository = new UpdateRepository(this.database),
+    private findByIdRepository: IFindByIdRepository<Account>,
+    private updateRepository: IUpdateRepository<Account>,
   ) { }
 
   async run(transfer: TransferEvent): Promise<ResponseDTO<WithdrawResponseDTO | number>> {

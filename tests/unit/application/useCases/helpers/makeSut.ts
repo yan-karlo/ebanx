@@ -43,19 +43,16 @@ export var makeSut = (accountExists: boolean) => {
 
   // Use Cases Dependency Injection
   const makeDepositUseCase = new MakeDepositUseCase(
-    database,
     createRepository,
     findByIdRepository,
     updateRepository
   );
   const makeWithdrawUseCase = new MakeWithdrawUseCase(
-    database,
     findByIdRepository,
     updateRepository
   );
 
   const getBalanceUseCase = new GetBalanceUseCase(
-    database,
     findByIdRepository,
   );
 
@@ -96,7 +93,7 @@ export var makeSutTransfer = (originExists: boolean, destinationExists: boolean)
   (updateRepository.run as jest.Mock)
     .mockImplementation(async (account: Account) => account);
 
-  const makeTransferUseCase = new MakeTransferUseCase(database, findByIdRepository, updateRepository);
+  const makeTransferUseCase = new MakeTransferUseCase(findByIdRepository, updateRepository);
 
   return {
     origin,

@@ -1,4 +1,3 @@
-import exp from "constants";
 import { makeSut } from "./helpers/makeSut";
 import { WithdrawEvent } from "@/domain/entities/WithdrawEvent";
 import { ResponseDTO } from "@/presentation/dtos/ResponseDTO";

@@ -7,13 +7,15 @@ import { IMakeDepositUseCase } from "../interfaces/useCases/IMakeDepositUseCase"
 import { DepositEvent } from "@/domain/entities/DepositEvent";
 import { ResponseDTO } from "@/presentation/dtos/ResponseDTO";
 import { DepositResponseDTO } from "@/presentation/dtos/DepositResponseDTO";
+import { ICreateRepository } from "../interfaces/repositories/ICreateRepository";
+import { IFindByIdRepository } from "../interfaces/repositories/IFindByIdRepository";
+import { IUpdateRepository } from '../interfaces/repositories/IUpdateRepository';
 
 export class MakeDepositUseCase implements IMakeDepositUseCase {
   constructor(
-    private database = new Database<Account>(),
-    private createRepository = new CreateRepository(this.database),
-    private findByIdRepository = new FindByIdRepository(this.database),
-    private updateRepository = new UpdateRepository(this.database),
+    private createRepository: ICreateRepository<Account>,
+    private findByIdRepository: IFindByIdRepository<Account>,
+    private updateRepository : IUpdateRepository<Account>,
   ) { }
 
   async run(deposit: DepositEvent): Promise<ResponseDTO<DepositResponseDTO>> {

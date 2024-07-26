@@ -1,7 +1,6 @@
 import { Account } from "@/domain/entities/Account";
 import { makeSut } from "./helpers/makeSut";
 import { ResponseDTO } from "@/presentation/dtos/ResponseDTO";
-import { DepositResponseDTO } from "@/presentation/dtos/DepositResponseDTO";
 
 describe("MakeDepositUseCase Class Test Suite", () => {
   it('It should call the update and findById repositories once the account exists', async () => {

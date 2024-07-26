@@ -1,5 +1,5 @@
 import { ResponseDTO } from '@/presentation/dtos/ResponseDTO';
-import { makeSutTransfer as makeSut, makeSutTransfer } from './helpers/makeSut';
+import { makeSutTransfer as makeSut } from './helpers/makeSut';
 
 describe("Create Repository Generic Class Test", () => {
   it('It should make the transfer enough time and having the correct parameters', async () => {

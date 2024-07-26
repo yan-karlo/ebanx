@@ -1,13 +1,11 @@
 import { Account } from "@/domain/entities/Account";
-import { FindByIdRepository } from "@/domain/repositories/FindByIdRepository";
-import { Database } from "@/infrastructure/database/Database";
 import { IGetBalanceUseCase } from "../interfaces/useCases/IGetBalanceUseCase";
 import { ResponseDTO } from "@/presentation/dtos/ResponseDTO";
+import { IFindByIdRepository } from "../interfaces/repositories/IFindByIdRepository";
 
 export class GetBalanceUseCase implements IGetBalanceUseCase {
   constructor(
-    private database = new Database<Account>(),
-    private findByIdRepository = new FindByIdRepository(this.database),
+    private findByIdRepository: IFindByIdRepository<Account>,
   ) { }
 
   async run(id: string): Promise<ResponseDTO<number | undefined>> {
