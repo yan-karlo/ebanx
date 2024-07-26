@@ -1,9 +1,9 @@
 import { IDatabaseCRUD } from "@/application/interfaces/IDatabaseCRUD";
 
-export class InMemoryCRUDStrategy<T extends {id:string}> implements IDatabaseCRUD<T>{
+export class InMemoryCRUDStrategy<T extends { id: string }> implements IDatabaseCRUD<T> {
   private table: Map<string, T> = new Map();
 
-  constructor() {}
+  constructor() { }
 
   async findById(id: string): Promise<T | undefined> {
     return this.table.get(id);
@@ -14,7 +14,8 @@ export class InMemoryCRUDStrategy<T extends {id:string}> implements IDatabaseCRU
       this.table.set(item.id, item);
       return item;
     }
-    return undefined;  }
+    return undefined;
+  }
 
   async create(item: T): Promise<T> {
     this.table.set(item.id, item);

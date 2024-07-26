@@ -13,9 +13,9 @@ export class MakeTransferUseCase implements IMakeTransferUseCase {
     private database = new Database<Account>(),
     private findByIdRepository = new FindByIdRepository(this.database),
     private updateRepository = new UpdateRepository(this.database),
-  ){}
+  ) { }
 
-  async run(transfer : TransferEvent): Promise<ResponseDTO<WithdrawResponseDTO | number>> {
+  async run(transfer: TransferEvent): Promise<ResponseDTO<WithdrawResponseDTO | number>> {
     try {
       var response = new ResponseDTO<WithdrawResponseDTO | number>();
 
@@ -23,10 +23,10 @@ export class MakeTransferUseCase implements IMakeTransferUseCase {
       var destination = await this.findByIdRepository.run(transfer.destination);
 
       var isTransactionNotAllowed =
-           origin === undefined
+        origin === undefined
         || destination === undefined
         || origin.balance < transfer.amount
-      if(isTransactionNotAllowed){
+      if (isTransactionNotAllowed) {
         response.code = 404;
         response.data = 0;
         return response;
@@ -38,7 +38,7 @@ export class MakeTransferUseCase implements IMakeTransferUseCase {
       await this.updateRepository.run(destination!);
 
       response.code = 201;
-      response.data = new TransferResponseDTO({origin: origin!, destination: destination!})
+      response.data = new TransferResponseDTO({ origin: origin!, destination: destination! })
       return response;
 
     } catch (e) {

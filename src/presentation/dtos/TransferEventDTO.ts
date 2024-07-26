@@ -9,7 +9,7 @@ export class TransferEventDTO implements ITransferEventDTO {
   public amount: number;
 
   constructor(data: ITransferEventDTO) {
-    if(!data.amount || !data.destination || !data.origin){
+    if (!data.amount || !data.destination || !data.origin) {
       throw new Error('TransferEventDTO property is missing')
     }
     this.origin = data.origin;

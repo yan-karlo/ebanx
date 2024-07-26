@@ -1,10 +1,10 @@
 import { Account } from "@/domain/entities/Account";
 
-export class WithdrawResponseDTO{
-  public origin : Account | null = null;
+export class WithdrawResponseDTO {
+  public origin: Account | null = null;
 
-  constructor(withdraw? : Account){
-    if(withdraw){
+  constructor(withdraw?: Account) {
+    if (withdraw) {
       this.origin = new Account(withdraw.id, withdraw.balance)
     }
   }

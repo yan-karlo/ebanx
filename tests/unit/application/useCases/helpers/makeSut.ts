@@ -90,15 +90,15 @@ export var makeSutTransfer = (originExists: boolean, destinationExists: boolean)
   const findByIdRepositorySpy = jest.spyOn(findByIdRepository, 'run');
 
   (findByIdRepository.run as jest.Mock)
-  .mockResolvedValueOnce(origin)
-  .mockResolvedValueOnce(destination);
+    .mockResolvedValueOnce(origin)
+    .mockResolvedValueOnce(destination);
 
   (updateRepository.run as jest.Mock)
-  .mockImplementation(async (account: Account) => account);
+    .mockImplementation(async (account: Account) => account);
 
   const makeTransferUseCase = new MakeTransferUseCase(database, findByIdRepository, updateRepository);
 
-  return{
+  return {
     origin,
     destination,
     finalOrigin,

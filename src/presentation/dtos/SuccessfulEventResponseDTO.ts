@@ -1,27 +1,27 @@
-interface ISuccessfulEventResponseDTO{
-  destination? : {
+interface ISuccessfulEventResponseDTO {
+  destination?: {
     id?: string;
-    balance? : number
+    balance?: number
   };
 
-  origin? : {
+  origin?: {
     id?: string;
-    balance? : number
+    balance?: number
   };
 }
-export class SuccessfulEventResponseDTO implements ISuccessfulEventResponseDTO{
-  public destination? : {
+export class SuccessfulEventResponseDTO implements ISuccessfulEventResponseDTO {
+  public destination?: {
     id?: string;
-    balance? : number
+    balance?: number
   };
 
-  public origin? : {
+  public origin?: {
     id?: string;
-    balance? : number
+    balance?: number
   };
 
-  constructor(event?: Partial<ISuccessfulEventResponseDTO> | undefined){
-    if(event && event !== undefined){
+  constructor(event?: Partial<ISuccessfulEventResponseDTO> | undefined) {
+    if (event && event !== undefined) {
       Object.assign(this, event);
     }
   }

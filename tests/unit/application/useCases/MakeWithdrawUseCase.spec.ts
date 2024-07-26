@@ -24,22 +24,11 @@ describe("Create Repository Generic Class Test", () => {
     expect(sut.foundAccount.balance).toEqual(expectedFinalBalance);
   });
 
-  it('It should return undefined when the origin account does not exist', async () => {
+  it('It should return error response when the origin account does not exist', async () => {
     var accountExists = false;
     var sut = makeSut(accountExists);
 
-    var result =  await sut.makeWithdrawUseCase.run(sut.withdrawEvent);
-
-    expect(sut.findByIdRepositorySpy).toHaveBeenCalledWith(sut.account.id);
-    expect(sut.updateRepositorySpy).not.toHaveBeenCalled();
-    expect( result).toBeUndefined()
-  });
-
-  it('It should return respond code 404 when the origin account does not has balance enough', async () => {
-    var accountExists = false;
-    var sut = makeSut(accountExists);
-    var bigWithdraw = new WithdrawEvent(sut.account.id,20000);
-    var result =  await sut.makeWithdrawUseCase.run(bigWithdraw);
+    var result = await sut.makeWithdrawUseCase.run(sut.withdrawEvent);
     var response = new ResponseDTO<number>();
     response.code = 404;
     response.data = 0;
@@ -47,7 +36,22 @@ describe("Create Repository Generic Class Test", () => {
 
     expect(sut.findByIdRepositorySpy).toHaveBeenCalledWith(sut.account.id);
     expect(sut.updateRepositorySpy).not.toHaveBeenCalled();
-    expect( result).toStrictEqual(response);
+    expect(result).toStrictEqual(response);
+  });
+
+  it('It should return respond code 404 when the origin account does not has balance enough', async () => {
+    var accountExists = false;
+    var sut = makeSut(accountExists);
+    var bigWithdraw = new WithdrawEvent(sut.account.id, 20000);
+    var result = await sut.makeWithdrawUseCase.run(bigWithdraw);
+    var response = new ResponseDTO<number>();
+    response.code = 404;
+    response.data = 0;
+
+
+    expect(sut.findByIdRepositorySpy).toHaveBeenCalledWith(sut.account.id);
+    expect(sut.updateRepositorySpy).not.toHaveBeenCalled();
+    expect(result).toStrictEqual(response);
   });
 
 });

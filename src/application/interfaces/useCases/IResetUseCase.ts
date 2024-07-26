@@ -1,5 +1,5 @@
 import { ResponseDTO } from "@/presentation/dtos/ResponseDTO";
 
 export interface IResetUseCase {
-  run() : Promise<ResponseDTO<void>>;
+  run(): Promise<ResponseDTO<string>>;
 }
