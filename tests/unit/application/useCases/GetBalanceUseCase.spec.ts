@@ -1,26 +1,21 @@
-import exp from "constants";
 import { makeSut } from "./helpers/makeSut";
 
-describe("Create Repository Generic Class Test", () => {
+describe("GetBalanceUseCase Class Test", () => {
   it('It should call get balance using the right value', async () => {
     var accountExists = true;
     var sut = makeSut(accountExists);
-    var expectedFinalBalance = sut.account.balance + sut.foundAccount.balance;
 
-    await sut.makeDepositUseCase.run(sut.account);
+    await sut.getBalanceUseCase.run(sut.account.id);
 
-    expect(sut.foundAccount.balance).toEqual(expectedFinalBalance);
+    expect(sut.findByIdRepositorySpy).toHaveBeenCalledWith(sut.account.id);
   });
 
-  it('It should call the create and findById repositories once the account does not exist', async () => {
+  it('It should return undefined once the account does not exist', async () => {
     var accountExists = false;
     var sut = makeSut(accountExists);
+    var id = `${new Date().getMilliseconds()}`
+    var result = await sut.getBalanceUseCase.run(id);
 
-    await sut.makeDepositUseCase.run(sut.account);
-
-    expect(sut.createRepositorySpy).toHaveBeenCalledWith(sut.account);
-    expect(sut.findByIdRepositorySpy).toHaveBeenCalledWith(sut.account.id);
-    expect(sut.updateRepositorySpy).not.toHaveBeenCalled();
+    expect(result).toBeUndefined();
   });
-
 });

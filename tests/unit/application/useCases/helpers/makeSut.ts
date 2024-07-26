@@ -1,9 +1,11 @@
 import { GetBalanceUseCase } from "@/application/useCases/GetBalanceUseCase";
 import { MakeDepositUseCase } from "@/application/useCases/MakeDepositUseCase";
-import { MakeTransferUseCase } from "@/application/useCases/makeTransferUseCase";
+import { MakeTransferUseCase } from "@/application/useCases/MakeTransferUseCase";
 import { MakeWithdrawUseCase } from "@/application/useCases/MakeWithdrawUseCase";
 import { Account } from "@/domain/entities/Account";
+import { DepositEvent } from "@/domain/entities/DepositEvent";
 import { TransferEvent } from "@/domain/entities/TransferEvent";
+import { WithdrawEvent } from "@/domain/entities/WithdrawEvent";
 import { CreateRepository } from "@/domain/repositories/CreateRepository";
 import { FindByIdRepository } from "@/domain/repositories/FindByIdRepository";
 import { UpdateRepository } from "@/domain/repositories/UpdateRepository";
@@ -13,6 +15,8 @@ import { InMemoryCRUDStrategy } from "@/infrastructure/database/inMemory/inMemor
 export var makeSut = (accountExists: boolean) => {
   const account = new Account('1', 100);
   const foundAccount = new Account('1', 100);
+  const depositEvent = new DepositEvent('1', 500);
+  const withdrawEvent = new WithdrawEvent('1', 50);
   const result = async (account: Account | string): Promise<Account> => ({ ...(account as Account) });
   const id = accountExists ? account.id : `${new Date().getMilliseconds()}`;
   const findByIdResult =
@@ -61,6 +65,8 @@ export var makeSut = (accountExists: boolean) => {
     getBalanceUseCase,
     account,
     foundAccount,
+    depositEvent,
+    withdrawEvent,
     createRepositorySpy,
     updateRepositorySpy,
     findByIdRepositorySpy,
@@ -72,6 +78,8 @@ export var makeSutTransfer = (originExists: boolean, destinationExists: boolean)
   const origin = originExists ? new Account('2', 400) : undefined;
   const destination = destinationExists ? new Account('1', 100) : undefined;
   const finalOrigin = originExists ? new Account('2', 300) : undefined;
+  const depositEvent = new DepositEvent('1', 500);
+  const withdrawEvent = new WithdrawEvent('1', 50);
   const finalDestination = destinationExists ? new Account('1', 200) : undefined;
 
   const transferEvent = new TransferEvent('2', '1', 100);
@@ -95,6 +103,8 @@ export var makeSutTransfer = (originExists: boolean, destinationExists: boolean)
     destination,
     finalOrigin,
     finalDestination,
+    depositEvent,
+    withdrawEvent,
     transferEvent,
     updateRepositorySpy,
     findByIdRepositorySpy,
