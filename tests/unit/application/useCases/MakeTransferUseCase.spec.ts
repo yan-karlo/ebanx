@@ -1,3 +1,4 @@
+import { ResponseDTO } from '@/presentation/dtos/ResponseDTO';
 import { makeSutTransfer as makeSut, makeSutTransfer } from './helpers/makeSut';
 
 describe("Create Repository Generic Class Test", () => {
@@ -27,9 +28,13 @@ describe("Create Repository Generic Class Test", () => {
     var sut = makeSut(originExists, destinationExists);
 
     const result = await sut.makeTransferUseCase.run(sut.transferEvent);
+    var response = new ResponseDTO<number>();
+    response.code = 404;
+    response.data = 0;
+
 
     expect(sut.findByIdRepositorySpy).toHaveBeenCalledTimes(2);
     expect(sut.updateRepositorySpy).not.toHaveBeenCalled();
-    expect(result).toEqual([undefined, expect.anything()]);
+    expect(result).toStrictEqual(response);
   });
 });
