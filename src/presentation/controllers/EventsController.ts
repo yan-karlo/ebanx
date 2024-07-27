@@ -19,21 +19,21 @@ export class EventsController {
 
 
   async run(req: Request, res: Response): Promise<any> {
-    const { type: transaction, ...data } = req.query;
+    const { type: transaction, ...data } = req.body;
     var response : ResponseDTO< DepositResponseDTO | WithdrawResponseDTO | TransferResponseDTO | number> | null = null;
 
-    switch (transaction) {
-      case "Deposit": {
+    switch ((transaction as string).toLowerCase()) {
+      case "deposit": {
         var depositEvent = new DepositEventDTO(data)
         response = await this.makeDepositUseCase.run(depositEvent);
         break;
       }
-      case "Withdraw": {
+      case "withdraw": { 
         var withdrawEvent = new WithdrawEventDTO(data)
         response = await this.makeWithdrawUseCase.run(withdrawEvent);
         break;
       }
-      case "Transfer": {
+      case "transfer": {
         var transferEvent = new TransferEventDTO(data)
         response = await this.makeTransferUseCase.run(transferEvent);
         break;

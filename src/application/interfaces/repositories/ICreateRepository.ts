@@ -1,6 +1,6 @@
-import { Database } from "@/infrastructure/database/Database";
+import { IDatabaseCRUD } from "../IDatabaseCRUD";
 
 export interface ICreateRepository<T extends { id: string }> {
- readonly database: Database<T>;
+ readonly database: IDatabaseCRUD<T>;
  run(item: T): Promise<T | undefined>
 }
