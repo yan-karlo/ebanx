@@ -1,14 +1,15 @@
+import { IDatabaseCRUD } from "@/application/interfaces/IDatabaseCRUD";
+import { Account } from "@/domain/entities/Account";
 import { eventsControllerFactory } from "@/infrastructure/factories/eventsControllerFactory";
-import { Application, Router } from "express";
-export class EventsRouter {
-  public router : Router
-  constructor(){
-    this.router = Router();
-    //this.createRoutes();
-  }
+import { Router } from "express";
 
-  createRoutes(app : Application){
-    var eventsController = eventsControllerFactory();
-    app.post('/events', eventsController.run)
+export class EventsRouter {
+  public router : Router = Router()
+  constructor(){ }
+
+  createRoutes(database: IDatabaseCRUD<Account>) {
+    var eventsController = eventsControllerFactory(database);
+    this.router.post('/event', (req, res) => eventsController.run(req, res));
+    return this.router;
   }
 }

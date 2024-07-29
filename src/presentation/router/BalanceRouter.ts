@@ -1,14 +1,15 @@
+import { IDatabaseCRUD } from "@/application/interfaces/IDatabaseCRUD";
+import { Account } from "@/domain/entities/Account";
 import { balanceControllerFactory } from "@/infrastructure/factories/balanceControllerFactory";
-import { Application, Router } from "express";
+import { Router } from "express";
 
 export class BalanceRouter {
   public router : Router = Router()
+  constructor(){ }
 
-  constructor(){
-  }
-
-  createRoutes(){
-    var balanceController = balanceControllerFactory();
-    this.router.post('/balance', balanceController.run)
+  createRoutes(database : IDatabaseCRUD<Account>){
+    var balanceController = balanceControllerFactory(database);
+    this.router.get('/balance', (req,res) => balanceController.run(req,res));
+    return this.router;
   }
 }

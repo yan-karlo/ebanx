@@ -28,9 +28,14 @@ app.use(cors({ origin: '*' }));
 app.get('/ping', (_req, res) => res.json("pong"))
 var CRUDStrategy = new InMemoryCRUDStrategy<Account>()
 var database = databaseFactory('account');
-app.get('/balance', (req, res) => balanceControllerFactory(CRUDStrategy).run(req,res) );
-app.post('/event', (req, res) => eventsControllerFactory(database).run(req, res) );
-app.post('/reset', (req, res) => resetControllerFactory(CRUDStrategy).run(req, res) );
+// app.get('/balance', (req, res) => balanceControllerFactory(CRUDStrategy).run(req,res) );
+// app.post('/event', (req, res) => eventsControllerFactory(database).run(req, res) );
+// app.post('/reset', (req, res) => resetControllerFactory(CRUDStrategy).run(req, res) );
+app.use((new BalanceRouter()).createRoutes(database))
+app.use((new ResetRouter()).createRoutes(database))
+app.use((new EventsRouter()).createRoutes(database))
+
+
 //app.get('/balance', (req, res) => res.json('balance1') );
 
 // eventsRoutes.createRoutes(app);
