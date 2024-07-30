@@ -14,7 +14,7 @@ export class GetBalanceUseCase implements IGetBalanceUseCase {
       var result = await this.findByIdRepository.run(id);
       response.code = result === undefined ? 404 : 200;
       response.data = result === undefined ? 0 : result?.balance
-
+      console.log({"balance": result})
       return response;
     } catch (e) {
       var error = e as Error;

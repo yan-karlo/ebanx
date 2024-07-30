@@ -13,6 +13,8 @@ export class ResetUseCase implements IResetUseCase {
     var response = new ResponseDTO<string>();
     response.code = 200;
     response.data = "OK";
+    console.log("reset")
+
     return response;
   }
 }

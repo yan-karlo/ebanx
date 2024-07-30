@@ -9,6 +9,6 @@ export class ResetController {
 
   async run(req: Request, res: Response): Promise<void> {
     var response = await this.resetUseCase.run();
-    res.status(response.code).json(response.data);
+    res.status(response.code).send(response.data);
   }
 }

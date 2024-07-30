@@ -17,6 +17,7 @@ export class MakeWithdrawUseCase implements IMakeWithdrawUseCase {
 
     try {
       var bankAccount = await this.findByIdRepository.run(withdraw.origin);
+      console.log({ withdraw :{bankAccount, withdraw}})
       if (bankAccount === undefined || bankAccount.balance < withdraw.amount) {
         response.code = 404;
         response.data = 0;

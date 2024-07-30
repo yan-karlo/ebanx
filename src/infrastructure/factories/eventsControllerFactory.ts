@@ -12,9 +12,9 @@ export var eventsControllerFactory = (database : IDatabaseCRUD<Account>) => {
     var createRepository = new CreateRepository(database);
     var updateRepository = new UpdateRepository(database);
     var findByIdRepository = new FindByIdRepository(database);
-    var makeTransferUseCase = new MakeTransferUseCase(findByIdRepository, updateRepository);
     var makeWithdrawUseCase = new MakeWithdrawUseCase(findByIdRepository, updateRepository);
     var makeDepositUseCase = new MakeDepositUseCase(createRepository, findByIdRepository, updateRepository);
+    var makeTransferUseCase = new MakeTransferUseCase(findByIdRepository, makeDepositUseCase, makeWithdrawUseCase);
 
     return new EventsController(makeDepositUseCase, makeWithdrawUseCase, makeTransferUseCase);
 }

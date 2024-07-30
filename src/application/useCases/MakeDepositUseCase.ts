@@ -27,9 +27,11 @@ export class MakeDepositUseCase implements IMakeDepositUseCase {
       if (destination === undefined) {
         var newAccount = new Account(deposit.destination, deposit.amount);
         result = await this.createRepository.run(newAccount);
+        console.log({"deposit-creating": result})
       } else {
         destination.balance += deposit.amount;
         result = await this.updateRepository.run(destination);
+        console.log({"deposit": result})
       }
 
       response.code = 201;

@@ -6,11 +6,19 @@ import { WithdrawResponseDTO } from "@/presentation/dtos/WithdrawResponseDTO";
 import { TransferResponseDTO } from "@/presentation/dtos/TransferResponseDTO";
 import { IFindByIdRepository } from "../interfaces/repositories/IFindByIdRepository";
 import { IUpdateRepository } from "../interfaces/repositories/IUpdateRepository";
+import { IMakeDepositUseCase } from "../interfaces/useCases/IMakeDepositUseCase";
+import { IMakeWithdrawUseCase } from "../interfaces/useCases/IMakeWithdrawUseCase";
+import { WithdrawEventDTO } from "@/presentation/dtos/WithdrawEventDTO";
+import { DepositEventDTO } from "@/presentation/dtos/DepositEventDTO";
+import { WithdrawEvent } from "@/domain/entities/WithdrawEvent";
+import { DepositEvent } from "@/domain/entities/DepositEvent";
+import { IDatabaseCRUD } from '../interfaces/IDatabaseCRUD';
 
 export class MakeTransferUseCase implements IMakeTransferUseCase {
   constructor(
     private findByIdRepository: IFindByIdRepository<Account>,
-    private updateRepository: IUpdateRepository<Account>,
+    private makeDepositUseCase: IMakeDepositUseCase,
+    private makeWithdrawUseCase: IMakeWithdrawUseCase,
   ) { }
 
   async run(transfer: TransferEvent): Promise<ResponseDTO<WithdrawResponseDTO | number>> {
@@ -19,24 +27,29 @@ export class MakeTransferUseCase implements IMakeTransferUseCase {
 
       var origin = await this.findByIdRepository.run(transfer.origin);
       var destination = await this.findByIdRepository.run(transfer.destination);
+      console.log({ transfer: { origin, destination } })
 
-      var isTransactionNotAllowed =
-        origin === undefined
-        || destination === undefined
-        || origin.balance < transfer.amount
+      var isTransactionNotAllowed = origin === undefined || origin.balance < transfer.amount
       if (isTransactionNotAllowed) {
         response.code = 404;
         response.data = 0;
         return response;
       }
 
-      origin!.balance -= transfer.amount;
-      destination!.balance += transfer.amount;
-      await this.updateRepository.run(origin!);
-      await this.updateRepository.run(destination!);
+      var withdraw = new WithdrawEvent(transfer.origin, transfer.amount);
+      var deposit = new DepositEvent(transfer.destination, transfer.amount);
+      console.log({ transfer_2: { withdraw, deposit } })
 
+      await this.makeWithdrawUseCase.run(withdraw);
+      console.log({ transfer_3: { withdraw, deposit } })
+      const depositResponse = await this.makeDepositUseCase.run(deposit);
+      const withdrawReceipt = new Account(withdraw.origin, origin!.balance)
+      const depositReceipt = new Account(
+        depositResponse.data?.destination?.id ?? '',
+        depositResponse.data?.destination?.balance ?? 0
+      );
       response.code = 201;
-      response.data = new TransferResponseDTO({ origin: origin!, destination: destination! })
+      response.data = new TransferResponseDTO({origin: withdrawReceipt, destination: depositReceipt })
       return response;
 
     } catch (e) {

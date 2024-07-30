@@ -21,4 +21,14 @@ export class ResponseDTO<T> implements IResponseDTO<T> {
   constructor(event?: Partial<IResponseDTO<T>>) {
     if (event) Object.assign(this, event);
   }
+
+  errorToJson(): any {
+    return {
+      error: {
+        msg: this.error?.msg,
+        originalMessage: this.error?.originalMsg,
+        stack: this.error?.stack,
+      }
+    }
+  }
 }
