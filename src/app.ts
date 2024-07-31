@@ -1,4 +1,4 @@
-import  cors  from 'cors';
+import cors from 'cors';
 import express, { Router } from 'express';
 import helmet from 'helmet';
 import { EventsRouter } from './presentation/router/EventsRouter';
@@ -24,24 +24,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 app.use(cors({ origin: '*' }));
-
 app.get('/ping', (_req, res) => res.json("pong"))
+
 var CRUDStrategy = new InMemoryCRUDStrategy<Account>()
 var database = databaseFactory('account');
-// app.get('/balance', (req, res) => balanceControllerFactory(CRUDStrategy).run(req,res) );
-// app.post('/event', (req, res) => eventsControllerFactory(database).run(req, res) );
-// app.post('/reset', (req, res) => resetControllerFactory(CRUDStrategy).run(req, res) );
 app.use((new BalanceRouter()).createRoutes(database))
 app.use((new ResetRouter()).createRoutes(database))
 app.use((new EventsRouter()).createRoutes(database))
-
-
-//app.get('/balance', (req, res) => res.json('balance1') );
-
-// eventsRoutes.createRoutes(app);
-// app.use(balanceRoutes.createRoutes)
-// app.use('/', resetRoutes.createRoutes)
-
 app.listen(3000, function () {
   console.log('Server listening on port 3000!');
 });

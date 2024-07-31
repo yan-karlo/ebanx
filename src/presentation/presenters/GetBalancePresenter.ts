@@ -18,7 +18,7 @@ export class GetBalancePresenter implements IGetBalancePresenter {
       response.isError = true;
       response.error.msg = 'Error when trying to get the balance';
       response.error.stack = error.stack;
-      response.error.originalMsg = error.message
+      response.error.originalMsg = error.message;
     }
     return response;
   }

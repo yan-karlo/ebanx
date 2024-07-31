@@ -3,5 +3,5 @@ import { DepositResponseDTO } from '@/presentation/dtos/DepositResponseDTO';
 import { DepositEvent } from '@/domain/entities/DepositEvent';
 
 export interface IMakeDepositPresenter {
-  run(depositEvent : DepositEvent): Promise<ResponseDTO<DepositResponseDTO | number>>
+  run(depositEvent: DepositEvent): Promise<ResponseDTO<DepositResponseDTO | number>>;
 }

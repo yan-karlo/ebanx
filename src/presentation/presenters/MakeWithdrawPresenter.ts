@@ -5,9 +5,9 @@ import { ResponseDTO } from "@/presentation/dtos/ResponseDTO";
 import { WithdrawResponseDTO } from "@/presentation/dtos/WithdrawResponseDTO";
 
 export class MakeWithdrawPresenter implements IMakeWithdrawPresenter {
-  constructor(private makeWithdrawUseCase: MakeWithdrawUseCase){}
+  constructor(private makeWithdrawUseCase: MakeWithdrawUseCase) { }
 
-  async run(Withdraw : WithdrawEvent): Promise<ResponseDTO<WithdrawResponseDTO | number>>{
+  async run(Withdraw: WithdrawEvent): Promise<ResponseDTO<WithdrawResponseDTO | number>> {
     const response = new ResponseDTO<WithdrawResponseDTO | number>()
     try {
       const withdrawReceipt = await this.makeWithdrawUseCase.run(Withdraw)
@@ -19,7 +19,7 @@ export class MakeWithdrawPresenter implements IMakeWithdrawPresenter {
       response.isError = true;
       response.error.msg = 'Error when trying to make a Withdraw';
       response.error.stack = error.stack;
-      response.error.originalMsg = error.message
+      response.error.originalMsg = error.message;
     }
 
     return response;

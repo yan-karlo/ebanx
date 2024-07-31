@@ -8,6 +8,6 @@ export class ResetRouter {
   createRoutes(database: IDatabaseCRUD<Account>) {
     var resetController = resetControllerFactory(database);
     this.router.post('/reset', (req, res) => resetController.run(req, res));
-    return this.router
+    return this.router;
   }
 }

@@ -9,29 +9,29 @@ export class MakeDepositUseCase implements IMakeDepositUseCase {
   constructor(
     private createRepository: ICreateRepository<Account>,
     private findByIdRepository: IFindByIdRepository<Account>,
-    private updateRepository : IUpdateRepository<Account>,
+    private updateRepository: IUpdateRepository<Account>,
   ) { }
 
   async run(deposit: DepositEvent): Promise<Account> {
     var result: Account | undefined | null = null;
     var undefinedAccount = new Account('', 0);
 
+    if (deposit.amount <= 0) return undefinedAccount;
+
     try {
       var destination = await this.findByIdRepository.run(deposit.destination);
       if (destination === undefined) {
         var newAccount = new Account(deposit.destination, deposit.amount);
         result = await this.createRepository.run(newAccount);
-        console.log({"deposit-creating": result})
       } else {
         destination.balance += deposit.amount;
         result = await this.updateRepository.run(destination);
-        console.log({"deposit": result})
       }
 
-      return  result === undefined ? undefinedAccount: result;
+      return result === undefined ? undefinedAccount : result;
 
     } catch (e) {
-      return undefinedAccount
+      return undefinedAccount;
     }
   }
 }

@@ -6,10 +6,10 @@ describe("Reset Repository Generic Class Test", () => {
 
     await sut.resetRepository.run();
 
-    expect(sut.resetSpy).toHaveBeenCalled()
-    expect(sut.createSpy).not.toHaveBeenCalled()
-    expect(sut.findByIdSpy).not.toHaveBeenCalled()
-    expect(sut.updateSpy).not.toHaveBeenCalled()
+    expect(sut.resetSpy).toHaveBeenCalled();
+    expect(sut.createSpy).not.toHaveBeenCalled();
+    expect(sut.findByIdSpy).not.toHaveBeenCalled();
+    expect(sut.updateSpy).not.toHaveBeenCalled();
   });
 
 });

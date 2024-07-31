@@ -1,56 +1,35 @@
+import { Account } from "@/domain/entities/Account";
 import { makeSut } from "./helpers/makeSut";
 import { WithdrawEvent } from "@/domain/entities/WithdrawEvent";
-import { ResponseDTO } from "@/presentation/dtos/ResponseDTO";
 
-describe("Create Repository Generic Class Test", () => {
-  it('It should call the update and findById repositories once the account exists', async () => {
-    var accountExists = true;
-    var sut = makeSut(accountExists);
+describe("Make Withdraw Use Case Test Suite", () => {
+  it('It should make withdraw in an existing account.', async () => {
+    var sut = makeSut();
+    var withdrawAccountAmount = 20;
+    var originAccount = new Account('W100', 100);
+    var withdrawEvent = new WithdrawEvent(originAccount.id,withdrawAccountAmount);
 
-    await sut.makeWithdrawUseCase.run(sut.withdrawEvent);
+    sut.database.create({...originAccount});
 
-    expect(sut.findByIdRepositorySpy).toHaveBeenCalledWith(sut.withdrawEvent.origin);
-    expect(sut.updateRepositorySpy).toHaveBeenCalledWith(sut.foundAccount);
+    var withdrawReceipt = await sut.makeWithdrawUseCase.run(withdrawEvent);
+
+    expect(withdrawReceipt.balance).toBe(originAccount.balance - withdrawAccountAmount);
+    expect(sut.findByIdRepositorySpy).toHaveBeenCalledTimes(1);
+    expect(sut.updateRepositorySpy).toHaveBeenCalledTimes(1);
+    expect(sut.createRepositorySpy).toHaveBeenCalledTimes(0);
   });
 
-  it('It should call make a deposit using the right value', async () => {
-    var accountExists = true;
-    var sut = makeSut(accountExists);
-    var expectedFinalBalance = sut.foundAccount.balance - sut.withdrawEvent.amount;
+  it('It should prevent to make withdraw in an no-existing account.', async () => {
+    var sut = makeSut();
+    var withdrawAccountAmount = 20;
+    var originAccount = new Account('W100', 100);
+    var withdrawEvent = new WithdrawEvent(originAccount.id,withdrawAccountAmount);
 
-    await sut.makeWithdrawUseCase.run(sut.withdrawEvent);
+    var withdrawReceipt = await sut.makeWithdrawUseCase.run(withdrawEvent);
 
-    expect(sut.foundAccount.balance).toEqual(expectedFinalBalance);
+    expect(withdrawReceipt.id).toBe('');
+    expect(sut.findByIdRepositorySpy).toHaveBeenCalledTimes(1);
+    expect(sut.updateRepositorySpy).toHaveBeenCalledTimes(0);
+    expect(sut.createRepositorySpy).toHaveBeenCalledTimes(0);
   });
-
-  it('It should return error response when the origin account does not exist', async () => {
-    var accountExists = false;
-    var sut = makeSut(accountExists);
-
-    var result = await sut.makeWithdrawUseCase.run(sut.withdrawEvent);
-    var response = new ResponseDTO<number>();
-    response.code = 404;
-    response.data = 0;
-
-
-    expect(sut.findByIdRepositorySpy).toHaveBeenCalledWith(sut.account.id);
-    expect(sut.updateRepositorySpy).not.toHaveBeenCalled();
-    expect(result).toStrictEqual(response);
-  });
-
-  it('It should return respond code 404 when the origin account does not has balance enough', async () => {
-    var accountExists = false;
-    var sut = makeSut(accountExists);
-    var bigWithdraw = new WithdrawEvent(sut.account.id, 20000);
-    var result = await sut.makeWithdrawUseCase.run(bigWithdraw);
-    var response = new ResponseDTO<number>();
-    response.code = 404;
-    response.data = 0;
-
-
-    expect(sut.findByIdRepositorySpy).toHaveBeenCalledWith(sut.account.id);
-    expect(sut.updateRepositorySpy).not.toHaveBeenCalled();
-    expect(result).toStrictEqual(response);
-  });
-
 });

@@ -6,10 +6,10 @@ describe("FindById Repository Generic Class Test", () => {
     const id = `${new Date().getMilliseconds()}`;
     await sut.findByIdRepository.run(id);
 
-    expect(sut.findByIdSpy).toHaveBeenCalledWith(id)
-    expect(sut.createSpy).not.toHaveBeenCalled()
-    expect(sut.updateSpy).not.toHaveBeenCalled()
-    expect(sut.resetSpy).not.toHaveBeenCalled()
+    expect(sut.findByIdSpy).toHaveBeenCalledWith(id);
+    expect(sut.createSpy).not.toHaveBeenCalled();
+    expect(sut.updateSpy).not.toHaveBeenCalled();
+    expect(sut.resetSpy).not.toHaveBeenCalled();
   });
 
 });

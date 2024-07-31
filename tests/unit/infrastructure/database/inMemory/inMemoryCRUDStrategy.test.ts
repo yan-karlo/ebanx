@@ -1,9 +1,9 @@
 import { Account } from "@/domain/entities/Account";
 import { InMemoryCRUDStrategy } from "@/infrastructure/database/inMemory/inMemoryCRUDStrategy";
 
-const makeSut = (account : Account =
-   new Account("1", 100)
-  ) => {
+const makeSut = (account: Account =
+  new Account("1", 100)
+) => {
   return { account };
 };
 

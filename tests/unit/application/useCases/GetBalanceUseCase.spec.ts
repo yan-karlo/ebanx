@@ -1,39 +1,30 @@
-import { ResponseDTO } from "@/presentation/dtos/ResponseDTO";
 import { makeSut } from "./helpers/makeSut";
+import { Account } from "@/domain/entities/Account";
 
-describe("GetBalanceUseCase Class Test", () => {
-  it('It should call get balance using the right value', async () => {
-    var accountExists = true;
-    var sut = makeSut(accountExists);
+describe("Get Balance Use Case Test Suite", () => {
+  it('It should get the balance from an existing account.', async () => {
+    var sut = makeSut();
+    var theAccount = new Account('G100', 100);
 
-    await sut.getBalanceUseCase.run(sut.account.id);
+    sut.database.create({...theAccount});
 
-    expect(sut.findByIdRepositorySpy).toHaveBeenCalledWith(sut.account.id);
+    var balanceResult = await sut.getBalanceUseCase.run(theAccount.id);
+
+    expect(balanceResult).toBe(theAccount.balance);
+    expect(sut.findByIdRepositorySpy).toHaveBeenCalledTimes(1);
+    expect(sut.createRepositorySpy).toHaveBeenCalledTimes(0);
+    expect(sut.updateRepositorySpy).toHaveBeenCalledTimes(0);
   });
 
-  it('It should return the response having the right value', async () => {
-    var accountExists = true;
-    var sut = makeSut(accountExists);
+  it('It should refuse to get the balance from an no-existing account.', async () => {
+    var sut = makeSut();
+    var theAccount = new Account('G100', 100);
 
-    var result = await sut.getBalanceUseCase.run(sut.account.id);
-    var response = new ResponseDTO<number>();
-    response.code = 200;
-    response.data = sut.account.balance;
+    var balanceResult = await sut.getBalanceUseCase.run(theAccount.id);
 
-
-    expect(result).toStrictEqual(response);
-  });
-
-  it('It should return error response once the account does not exist', async () => {
-    var accountExists = false;
-    var sut = makeSut(accountExists);
-    var id = `${new Date().getMilliseconds()}`
-    var result = await sut.getBalanceUseCase.run(id);
-    var response = new ResponseDTO<number>();
-    response.code = 404;
-    response.data = 0;
-
-
-    expect(result).toStrictEqual(response);
+    expect(balanceResult).toBeUndefined();
+    expect(sut.findByIdRepositorySpy).toHaveBeenCalledTimes(1);
+    expect(sut.createRepositorySpy).toHaveBeenCalledTimes(0);
+    expect(sut.updateRepositorySpy).toHaveBeenCalledTimes(0);
   });
 });

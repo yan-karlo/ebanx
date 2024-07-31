@@ -5,7 +5,7 @@ export class DepositResponseDTO {
 
   constructor(deposit?: Account) {
     if (deposit) {
-      this.destination = new Account(deposit.id, deposit.balance)
+      this.destination = new Account(deposit.id, deposit.balance);
     }
   }
 }

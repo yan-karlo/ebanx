@@ -1,55 +1,50 @@
 import { Account } from "@/domain/entities/Account";
-import { makeSut } from "./helpers/makeSut";
-import { ResponseDTO } from "@/presentation/dtos/ResponseDTO";
+import { makeSut } from "./helpers/makeSut";;
+import { DepositEvent } from "@/domain/entities/DepositEvent";
 
-describe("MakeDepositUseCase Class Test Suite", () => {
-  it('It should call the update and findById repositories once the account exists', async () => {
-    var accountExists = true;
-    var sut = makeSut(accountExists);
+describe("Make Deposit Use Case Test Suite", () => {
+  it('It should make a deposit in an existing account', async () => {
+    var sut = makeSut();
+    var depositAccountAmount = 20;
+    var destinationAccount = new Account('D100', 0);
+    var depositEvent = new DepositEvent(destinationAccount.id,depositAccountAmount);
 
-    await sut.makeDepositUseCase.run(sut.depositEvent);
+    await sut.database.create({...destinationAccount});
 
-    expect(sut.createRepositorySpy).not.toHaveBeenCalled();
-    expect(sut.findByIdRepositorySpy).toHaveBeenCalledWith(sut.account.id);
-    expect(sut.updateRepositorySpy).toHaveBeenCalledWith(sut.foundAccount);
+    var depositReceipt = await sut.makeDepositUseCase.run(depositEvent);
+
+    expect(depositReceipt.balance).toBe(destinationAccount.balance + depositAccountAmount);
+    expect(sut.createRepositorySpy).toHaveBeenCalledTimes(0);
+    expect(sut.findByIdRepositorySpy).toHaveBeenCalledTimes(1);
+    expect(sut.updateRepositorySpy).toHaveBeenCalledTimes(1);
   });
 
-  it('It should call make a deposit using the right value', async () => {
-    var accountExists = true;
-    var sut = makeSut(accountExists);
-    /*
-    Heads-up: The account handled by the deposit event (incremental) is
-    the returned one from findById mocked method in the sut function
-    */
-    var expectedFinalBalance = sut.foundAccount.balance + sut.depositEvent.amount;
+  it('It should create a new account make a deposit in it', async () => {
+    var sut = makeSut();
+    var depositAccountAmount = 20;
+    var destinationAccount = new Account('D100', 0);
+    var depositEvent = new DepositEvent(destinationAccount.id,depositAccountAmount);
 
-    await sut.makeDepositUseCase.run(sut.depositEvent);
+    var depositReceipt = await sut.makeDepositUseCase.run(depositEvent);
 
-    expect(sut.foundAccount.balance).toEqual(expectedFinalBalance);
+    expect(depositReceipt.balance).toBe(destinationAccount.balance + depositAccountAmount);
+    expect(sut.createRepositorySpy).toHaveBeenCalled();
+    expect(sut.findByIdRepositorySpy).toHaveBeenCalledTimes(1);
+    expect(sut.updateRepositorySpy).toHaveBeenCalledTimes(0);
   });
 
-  it('It should call the create and findById repositories once the account does not exist', async () => {
-    var accountExists = false;
-    var sut = makeSut(accountExists);
-    var newAccountCreatedByDeposit = new Account(sut.depositEvent.destination, sut.depositEvent.amount);
-    await sut.makeDepositUseCase.run(sut.depositEvent);
+  it('It should prevent to make a deposit having a negative value', async () => {
+    var sut = makeSut();
+    var depositAccountAmount = -20;
+    var destinationAccount = new Account('D100', 0);
+    var depositEvent = new DepositEvent(destinationAccount.id,depositAccountAmount);
 
-    expect(sut.createRepositorySpy).toHaveBeenCalledWith(newAccountCreatedByDeposit);
-    expect(sut.findByIdRepositorySpy).toHaveBeenCalledWith(sut.depositEvent.destination);
-    expect(sut.updateRepositorySpy).not.toHaveBeenCalled();
+    var depositReceipt = await sut.makeDepositUseCase.run(depositEvent);
+
+    expect(depositReceipt.balance).toBe(0);
+    expect(depositReceipt.id).toBe('');
+    expect(sut.createRepositorySpy).toHaveBeenCalledTimes(0);
+    expect(sut.findByIdRepositorySpy).toHaveBeenCalledTimes(0);
+    expect(sut.updateRepositorySpy).toHaveBeenCalledTimes(0);
   });
-
-  it('It should response when the account does not exist', async () => {
-    var accountExists = false;
-    var sut = makeSut(accountExists);
-    var newAccountCreatedByDeposit = new Account(sut.depositEvent.destination, sut.depositEvent.amount);
-    var result = await sut.makeDepositUseCase.run(sut.depositEvent);
-    var response = new ResponseDTO<number>();
-
-    response.code = 404;
-    response.data = 0;
-
-    expect(response).toStrictEqual(response);
-  });
-
 });

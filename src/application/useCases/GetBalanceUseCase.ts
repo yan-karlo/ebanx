@@ -7,7 +7,6 @@ export class GetBalanceUseCase implements IGetBalanceUseCase {
 
   async run(id: string): Promise<number | undefined> {
     var result = await this.findByIdRepository.run(id);
-    console.log({ "balance": result })
     return result?.balance;
   }
 }

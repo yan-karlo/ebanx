@@ -11,16 +11,16 @@ import { MakeDepositPresenter } from "@/presentation/presenters/MakeDepositPrese
 import { MakeWithdrawPresenter } from "@/presentation/presenters/MakeWithdrawPresenter";
 import { MakeTransferPresenter } from "@/presentation/presenters/MakeTransferPresenter";
 
-export var eventsControllerFactory = (database : IDatabaseCRUD<Account>) => {
-    var createRepository = new CreateRepository(database);
-    var updateRepository = new UpdateRepository(database);
-    var findByIdRepository = new FindByIdRepository(database);
-    var makeWithdrawUseCase = new MakeWithdrawUseCase(findByIdRepository, updateRepository);
-    var makeDepositUseCase = new MakeDepositUseCase(createRepository, findByIdRepository, updateRepository);
-    var makeTransferUseCase = new MakeTransferUseCase(findByIdRepository, makeDepositUseCase, makeWithdrawUseCase);
-    var makeDepositPresenter = new MakeDepositPresenter(makeDepositUseCase);
-    var makeWithdrawPresenter = new MakeWithdrawPresenter(makeWithdrawUseCase);
-    var makeTransferPresenter = new MakeTransferPresenter(makeTransferUseCase);
+export var eventsControllerFactory = (database: IDatabaseCRUD<Account>) => {
+  var createRepository = new CreateRepository(database);
+  var updateRepository = new UpdateRepository(database);
+  var findByIdRepository = new FindByIdRepository(database);
+  var makeWithdrawUseCase = new MakeWithdrawUseCase(findByIdRepository, updateRepository);
+  var makeDepositUseCase = new MakeDepositUseCase(createRepository, findByIdRepository, updateRepository);
+  var makeTransferUseCase = new MakeTransferUseCase(findByIdRepository, makeDepositUseCase, makeWithdrawUseCase);
+  var makeDepositPresenter = new MakeDepositPresenter(makeDepositUseCase);
+  var makeWithdrawPresenter = new MakeWithdrawPresenter(makeWithdrawUseCase);
+  var makeTransferPresenter = new MakeTransferPresenter(makeTransferUseCase);
 
-    return new EventsController(makeDepositPresenter, makeWithdrawPresenter, makeTransferPresenter);
+  return new EventsController(makeDepositPresenter, makeWithdrawPresenter, makeTransferPresenter);
 }

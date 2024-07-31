@@ -2,10 +2,10 @@ import { ResetUseCase } from "@/application/useCases/ResetUseCase";
 import { ResponseDTO } from "../dtos/ResponseDTO";
 import { IResetPresenter } from "@/application/interfaces/presenters/IResetPresenter";
 
-export class ResetPresenter implements IResetPresenter{
-  constructor(private resetUseCase : ResetUseCase){}
+export class ResetPresenter implements IResetPresenter {
+  constructor(private resetUseCase: ResetUseCase) { }
 
-  async run() : Promise<ResponseDTO<string>> {
+  async run(): Promise<ResponseDTO<string>> {
     var response = new ResponseDTO<string>();
     try {
       this.resetUseCase.run();
@@ -18,7 +18,7 @@ export class ResetPresenter implements IResetPresenter{
       response.isError = true;
       response.error.msg = 'Error when trying to reset the database';
       response.error.stack = error.stack;
-      response.error.originalMsg = error.message
+      response.error.originalMsg = error.message;
     }
     return response;
   }

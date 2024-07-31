@@ -33,7 +33,5 @@ export var makeSut = () => {
     updateSpy,
     findByIdSpy,
     resetSpy
-  }
-
-
+  };
 }

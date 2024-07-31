@@ -4,8 +4,8 @@ import { eventsControllerFactory } from "@/infrastructure/factories/eventsContro
 import { Router } from "express";
 
 export class EventsRouter {
-  public router : Router = Router()
-  constructor(){ }
+  public router: Router = Router()
+  constructor() { }
 
   createRoutes(database: IDatabaseCRUD<Account>) {
     var eventsController = eventsControllerFactory(database);

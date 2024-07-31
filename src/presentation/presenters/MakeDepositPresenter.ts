@@ -5,9 +5,9 @@ import { ResponseDTO } from "@/presentation/dtos/ResponseDTO";
 import { DepositResponseDTO } from "@/presentation/dtos/DepositResponseDTO";
 
 export class MakeDepositPresenter implements IMakeDepositPresenter {
-  constructor(private makeDepositUseCase: MakeDepositUseCase){}
+  constructor(private makeDepositUseCase: MakeDepositUseCase) { }
 
-  async run(deposit : DepositEvent): Promise<ResponseDTO<DepositResponseDTO | number>>{
+  async run(deposit: DepositEvent): Promise<ResponseDTO<DepositResponseDTO | number>> {
     const response = new ResponseDTO<DepositResponseDTO | number>()
     try {
       const depositReceipt = await this.makeDepositUseCase.run(deposit)
@@ -19,7 +19,7 @@ export class MakeDepositPresenter implements IMakeDepositPresenter {
       response.isError = true;
       response.error.msg = 'Error when trying to make a Deposit';
       response.error.stack = error.stack;
-      response.error.originalMsg = error.message
+      response.error.originalMsg = error.message;
     }
 
     return response;

@@ -1,41 +1,64 @@
-import { ResponseDTO } from '@/presentation/dtos/ResponseDTO';
-import { makeSutTransfer as makeSut } from './helpers/makeSut';
+import { makeSut } from "./helpers/makeSut";;
+import { Account } from '@/domain/entities/Account';
+import { TransferEvent } from '@/domain/entities/TransferEvent';
 
-describe("Create Repository Generic Class Test", () => {
-  it('It should make the transfer for an axisting account.', async () => {
+describe("Make Transfer Use Case Test Suite", () => {
+  it('It should make the transfer for both existing accounts.', async () => {
     var sut = makeSut();
+    var transferAmount = 15;
+    var origin = await sut.createRepository.run(new Account('T100', 15));
+    var destination = await sut.createRepository.run(new Account('T300', 0));
+    var transferEvent = new TransferEvent(origin!.id, destination!.id, transferAmount);
 
-    sut.makeDepositUseCase.run(sut.depositEvent);
+    const transferReceipt = await sut.makeTransferUseCase.run(transferEvent);
 
+    expect(transferReceipt.destination!.id).toBe(destination!.id);
+    expect(transferReceipt.destination!.balance).toBe(15);
+    expect(transferReceipt.origin!.id).toBe(origin!.id);
+    expect(transferReceipt.origin!.balance).toBe(0);
+    expect(sut.makeDepositUseCaseSpy).toHaveBeenCalledTimes(1);
+    expect(sut.makeWithdrawUseCaseSpy).toHaveBeenCalledTimes(1);
+    expect(sut.findByIdRepositorySpy).toHaveBeenCalledTimes(3);
+    expect(sut.updateRepositorySpy).toHaveBeenCalledTimes(2);
 
-    const transferReceipt = await sut.makeTransferUseCase.run(sut.transferEvent);
-    // Verify that update was called twice
-    expect(transferReceipt.data.).toHaveBeenCalledTimes(2);
-
-    // Verify that update was called with the correct parameters
-    expect(sut.updateRepositorySpy).toHaveBeenNthCalledWith(1, expect.objectContaining({
-      id: '2',
-      balance: 300 // Expected balance after transfer
-    }));
-    expect(sut.updateRepositorySpy).toHaveBeenNthCalledWith(2, expect.objectContaining({
-      id: '1',
-      balance: 200 // Expected balance after transfer
-    }));
   });
 
-  it('It should refuse to do the transfer because the origin account does not exist.', async () => {
-    var originExists = false;
-    var destinationExists = true;
-    var sut = makeSut(originExists, destinationExists);
+  it('It should make the transfer for just existing origin account.', async () => {
+    var sut = makeSut();
+    var transferAmount = 15;
+    var origin = await sut.createRepository.run(new Account('T100', 15));
+    var destination = new Account('T300', 0);
+    var transferEvent = new TransferEvent(origin!.id, destination!.id, transferAmount);
+    var newDestination = new Account(destination.id, destination.balance + transferAmount);
 
-    const result = await sut.makeTransferUseCase.run(sut.transferEvent);
-    var response = new ResponseDTO<number>();
-    response.code = 404;
-    response.data = 0;
+    const transferReceipt = await sut.makeTransferUseCase.run(transferEvent);
 
+    expect(transferReceipt.destination!.id).toBe(destination!.id);
+    expect(transferReceipt.destination!.balance).toBe(15);
+    expect(transferReceipt.origin!.id).toBe(origin!.id);
+    expect(transferReceipt.origin!.balance).toBe(0);
+    expect(sut.makeDepositUseCaseSpy).toHaveBeenCalledTimes(1);
+    expect(sut.makeWithdrawUseCaseSpy).toHaveBeenCalledTimes(1);
+    expect(sut.findByIdRepositorySpy).toHaveBeenCalledTimes(3);
+    expect(sut.updateRepositorySpy).toHaveBeenCalledTimes(1);
+    expect(sut.createRepositorySpy).toHaveBeenCalledWith(newDestination);
+  });
 
-    expect(sut.findByIdRepositorySpy).toHaveBeenCalledTimes(2);
-    expect(sut.updateRepositorySpy).not.toHaveBeenCalled();
-    expect(result).toStrictEqual(response);
+  it('It should refuse to make the transfer for no-existing origin account.', async () => {
+    var sut = makeSut();
+    var transferAmount = 15;
+    var origin = new Account('T100', 15);
+    var destination = new Account('T300', 0);
+    var transferEvent = new TransferEvent(origin!.id, destination!.id, transferAmount);
+
+    const transferReceipt = await sut.makeTransferUseCase.run(transferEvent);
+
+    expect(transferReceipt.origin).toBeNull();
+    expect(transferReceipt.destination).toBeNull();
+    expect(sut.makeDepositUseCaseSpy).toHaveBeenCalledTimes(0);
+    expect(sut.makeWithdrawUseCaseSpy).toHaveBeenCalledTimes(0);
+    expect(sut.findByIdRepositorySpy).toHaveBeenCalledTimes(1);
+    expect(sut.updateRepositorySpy).toHaveBeenCalledTimes(0);
+    expect(sut.createRepositorySpy).toHaveBeenCalledTimes(0);
   });
 });
