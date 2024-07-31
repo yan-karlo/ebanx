@@ -1,15 +1,15 @@
 import { Account } from "@/domain/entities/Account";
 
-interface ITransferResponseDTO {
+interface ITransferReceipt {
   origin: Account | null;
   destination: Account | null;
 }
 
-export class TransferResponseDTO {
+export class TransferReceipt {
   public origin: Account | null;
   public destination: Account | null;
 
-  constructor({ origin = null, destination = null }: ITransferResponseDTO =
+  constructor({ origin = null, destination = null }: ITransferReceipt =
     { origin: null, destination: null }) {
     this.origin = origin;
     this.destination = destination;

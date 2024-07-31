@@ -1,18 +1,12 @@
 import { Account } from "@/domain/entities/Account";
 import { TransferEvent } from "@/domain/entities/TransferEvent";
-import { IMakeTransferUseCase } from "../interfaces/useCases/IMakeTransferUseCase";
-import { ResponseDTO } from "@/presentation/dtos/ResponseDTO";
-import { WithdrawResponseDTO } from "@/presentation/dtos/WithdrawResponseDTO";
-import { TransferResponseDTO } from "@/presentation/dtos/TransferResponseDTO";
-import { IFindByIdRepository } from "../interfaces/repositories/IFindByIdRepository";
-import { IUpdateRepository } from "../interfaces/repositories/IUpdateRepository";
-import { IMakeDepositUseCase } from "../interfaces/useCases/IMakeDepositUseCase";
-import { IMakeWithdrawUseCase } from "../interfaces/useCases/IMakeWithdrawUseCase";
-import { WithdrawEventDTO } from "@/presentation/dtos/WithdrawEventDTO";
-import { DepositEventDTO } from "@/presentation/dtos/DepositEventDTO";
+import { IMakeTransferUseCase } from "@/application/interfaces/useCases/IMakeTransferUseCase";
+import { IFindByIdRepository } from "@/application/interfaces/repositories/IFindByIdRepository";
+import { IMakeDepositUseCase } from "@/application/interfaces/useCases/IMakeDepositUseCase";
+import { IMakeWithdrawUseCase } from "@/application/interfaces/useCases/IMakeWithdrawUseCase";
 import { WithdrawEvent } from "@/domain/entities/WithdrawEvent";
 import { DepositEvent } from "@/domain/entities/DepositEvent";
-import { IDatabaseCRUD } from '../interfaces/IDatabaseCRUD';
+import { TransferReceipt } from "@/domain/entities/TransferReceipt";
 
 export class MakeTransferUseCase implements IMakeTransferUseCase {
   constructor(
@@ -21,46 +15,33 @@ export class MakeTransferUseCase implements IMakeTransferUseCase {
     private makeWithdrawUseCase: IMakeWithdrawUseCase,
   ) { }
 
-  async run(transfer: TransferEvent): Promise<ResponseDTO<WithdrawResponseDTO | number>> {
-    try {
-      var response = new ResponseDTO<WithdrawResponseDTO | number>();
+  async run(transfer: TransferEvent): Promise<TransferReceipt> {
+    if (transfer.origin === null) return new TransferReceipt();
 
-      var origin = await this.findByIdRepository.run(transfer.origin);
-      var destination = await this.findByIdRepository.run(transfer.destination);
-      console.log({ transfer: { origin, destination } })
+    var origin = await this.findByIdRepository.run(transfer.origin);
+    var destination = await this.findByIdRepository.run(transfer.destination);
+    console.log({ transfer: { origin, destination } })
 
-      var isTransactionNotAllowed = origin === undefined || origin.balance < transfer.amount
-      if (isTransactionNotAllowed) {
-        response.code = 404;
-        response.data = 0;
-        return response;
-      }
-
-      var withdraw = new WithdrawEvent(transfer.origin, transfer.amount);
-      var deposit = new DepositEvent(transfer.destination, transfer.amount);
-      console.log({ transfer_2: { withdraw, deposit } })
-
-      await this.makeWithdrawUseCase.run(withdraw);
-      console.log({ transfer_3: { withdraw, deposit } })
-      const depositResponse = await this.makeDepositUseCase.run(deposit);
-      const withdrawReceipt = new Account(withdraw.origin, origin!.balance)
-      const depositReceipt = new Account(
-        depositResponse.data?.destination?.id ?? '',
-        depositResponse.data?.destination?.balance ?? 0
-      );
-      response.code = 201;
-      response.data = new TransferResponseDTO({origin: withdrawReceipt, destination: depositReceipt })
-      return response;
-
-    } catch (e) {
-      var error = e as Error;
-      var response = new ResponseDTO<WithdrawResponseDTO | number>();
-      response.code = 400;
-      response.isError = true;
-      response.error.msg = 'Error when trying to make a transfer';
-      response.error.stack = error.stack;
-      response.error.originalMsg = error.message
-      return response
+    var isTransactionNotAllowed = origin === undefined || origin.balance < transfer.amount
+    if (isTransactionNotAllowed) {
+      return new TransferReceipt();
     }
+
+    var withdraw = new WithdrawEvent(transfer.origin, transfer.amount);
+    var deposit = new DepositEvent(transfer.destination, transfer.amount);
+    console.log({ transfer_2: { withdraw, deposit } })
+
+    const withdrawReceipt = await this.makeWithdrawUseCase.run(withdraw);
+    const depositReceipt = await this.makeDepositUseCase.run(deposit);
+    // await this.makeWithdrawUseCase.run(withdraw);
+    console.log({ transfer_3: { withdraw, deposit } })
+    // const depositResponse = await this.makeDepositUseCase.run(deposit);
+    // const withdrawReceipt = new Account(withdraw.origin, origin!.balance)
+    // const depositReceipt = new Account(
+    //   depositResponse.data?.destination?.id ?? '',
+    //   depositResponse.data?.destination?.balance ?? 0
+    // );
+
+    return new TransferReceipt({ origin: withdrawReceipt, destination: depositReceipt })
   }
 }

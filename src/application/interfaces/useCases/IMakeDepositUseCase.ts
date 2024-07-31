@@ -1,7 +1,6 @@
+import { Account } from "@/domain/entities/Account";
 import { DepositEvent } from "@/domain/entities/DepositEvent";
-import { DepositResponseDTO } from "@/presentation/dtos/DepositResponseDTO";
-import { ResponseDTO } from "@/presentation/dtos/ResponseDTO";
 
 export interface IMakeDepositUseCase {
-  run(account: DepositEvent): Promise<ResponseDTO<DepositResponseDTO>>;
+  run(account: DepositEvent): Promise<Account>;
 }

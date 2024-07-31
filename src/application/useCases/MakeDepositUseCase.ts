@@ -1,15 +1,9 @@
 import { Account } from "@/domain/entities/Account";
-import { CreateRepository } from "@/domain/repositories/CreateRepository";
-import { FindByIdRepository } from "@/domain/repositories/FindByIdRepository";
-import { UpdateRepository } from "@/domain/repositories/UpdateRepository";
-import { Database } from "@/infrastructure/database/Database";
-import { IMakeDepositUseCase } from "../interfaces/useCases/IMakeDepositUseCase";
+import { IMakeDepositUseCase } from "@/application/interfaces/useCases/IMakeDepositUseCase";
 import { DepositEvent } from "@/domain/entities/DepositEvent";
-import { ResponseDTO } from "@/presentation/dtos/ResponseDTO";
-import { DepositResponseDTO } from "@/presentation/dtos/DepositResponseDTO";
-import { ICreateRepository } from "../interfaces/repositories/ICreateRepository";
-import { IFindByIdRepository } from "../interfaces/repositories/IFindByIdRepository";
-import { IUpdateRepository } from '../interfaces/repositories/IUpdateRepository';
+import { ICreateRepository } from "@/application/interfaces/repositories/ICreateRepository";
+import { IFindByIdRepository } from "@/application/interfaces/repositories/IFindByIdRepository";
+import { IUpdateRepository } from '@/application/interfaces/repositories/IUpdateRepository';
 
 export class MakeDepositUseCase implements IMakeDepositUseCase {
   constructor(
@@ -18,9 +12,9 @@ export class MakeDepositUseCase implements IMakeDepositUseCase {
     private updateRepository : IUpdateRepository<Account>,
   ) { }
 
-  async run(deposit: DepositEvent): Promise<ResponseDTO<DepositResponseDTO>> {
-    var response = new ResponseDTO<DepositResponseDTO>();
+  async run(deposit: DepositEvent): Promise<Account> {
     var result: Account | undefined | null = null;
+    var undefinedAccount = new Account('', 0);
 
     try {
       var destination = await this.findByIdRepository.run(deposit.destination);
@@ -34,20 +28,10 @@ export class MakeDepositUseCase implements IMakeDepositUseCase {
         console.log({"deposit": result})
       }
 
-      response.code = 201;
-      response.data = new DepositResponseDTO(result);
+      return  result === undefined ? undefinedAccount: result;
 
-
-      return response;
     } catch (e) {
-      var error = e as Error;
-      response.code = 400;
-      response.isError = true;
-      response.error.msg = 'Error when trying to find an account by id';
-      response.error.stack = error.stack;
-      response.error.originalMsg = error.message
+      return undefinedAccount
     }
-
-    return response;
   }
 }

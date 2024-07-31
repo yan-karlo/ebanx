@@ -2,14 +2,15 @@ import { ResponseDTO } from '@/presentation/dtos/ResponseDTO';
 import { makeSutTransfer as makeSut } from './helpers/makeSut';
 
 describe("Create Repository Generic Class Test", () => {
-  it('It should make the transfer enough time and having the correct parameters', async () => {
-    var originExists = true;
-    var destinationExists = true;
-    var sut = makeSut(originExists, destinationExists);
+  it('It should make the transfer for an axisting account.', async () => {
+    var sut = makeSut();
 
-    await sut.makeTransferUseCase.run(sut.transferEvent);
+    sut.makeDepositUseCase.run(sut.depositEvent);
+
+
+    const transferReceipt = await sut.makeTransferUseCase.run(sut.transferEvent);
     // Verify that update was called twice
-    expect(sut.findByIdRepositorySpy).toHaveBeenCalledTimes(2);
+    expect(transferReceipt.data.).toHaveBeenCalledTimes(2);
 
     // Verify that update was called with the correct parameters
     expect(sut.updateRepositorySpy).toHaveBeenNthCalledWith(1, expect.objectContaining({

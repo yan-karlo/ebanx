@@ -1,7 +1,6 @@
 import { TransferEvent } from "@/domain/entities/TransferEvent";
-import { ResponseDTO } from "@/presentation/dtos/ResponseDTO";
-import { WithdrawResponseDTO } from "@/presentation/dtos/WithdrawResponseDTO";
+import { TransferReceipt } from "@/domain/entities/TransferReceipt";
 
 export interface IMakeTransferUseCase {
-  run(transfer: TransferEvent): Promise<ResponseDTO<WithdrawResponseDTO | number>>;
+  run(transfer: TransferEvent): Promise<TransferReceipt>;
 }

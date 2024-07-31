@@ -70,30 +70,48 @@ export var makeSut = (accountExists: boolean) => {
   }
 }
 
-export var makeSutTransfer = (originExists: boolean, destinationExists: boolean) => {
+export var makeSutTransfer = () => {
   const table = new InMemoryCRUDStrategy<Account>();
-  const origin = originExists ? new Account('2', 400) : undefined;
-  const destination = destinationExists ? new Account('1', 100) : undefined;
-  const finalOrigin = originExists ? new Account('2', 300) : undefined;
-  const depositEvent = new DepositEvent('1', 500);
-  const withdrawEvent = new WithdrawEvent('1', 50);
-  const finalDestination = destinationExists ? new Account('1', 200) : undefined;
+  const origin = new Account('100', 0);
+  const destination = new Account('300', 0);
+  // const finalOrigin = originExists ? new Account('2', 300) : undefined;
+  const depositEvent = new DepositEvent(origin.id, 15);
+  //const withdrawEvent = new WithdrawEvent(origin, 50);
+  // const finalDestination = destinationExists ? new Account('1', 200) : undefined;
 
-  const transferEvent = new TransferEvent('2', '1', 100);
+  const transferEvent = new TransferEvent(origin!.id, destination!.id, 15);
   const database = new Database<Account>(table);
   const findByIdRepository = new FindByIdRepository<Account>(database);
   const updateRepository = new UpdateRepository<Account>(database);
+  const createRepository = new CreateRepository<Account>(database);
+
+  const makeDepositUseCase = new MakeDepositUseCase(
+    createRepository,
+    findByIdRepository,
+    updateRepository
+  );
+  const makeWithdrawUseCase = new MakeWithdrawUseCase(
+    findByIdRepository,
+    updateRepository
+  );
+  const makeTransferUseCase = new MakeTransferUseCase(
+    findByIdRepository,
+    makeDepositUseCase,
+    makeWithdrawUseCase
+  );
+
+
   const updateRepositorySpy = jest.spyOn(updateRepository, 'run');
   const findByIdRepositorySpy = jest.spyOn(findByIdRepository, 'run');
+  const makeDepositUseCaseSpy = jest.spyOn(makeDepositUseCase, 'run');
+  const makeWithdrawUseCaseSpy = jest.spyOn(makeWithdrawUseCase, 'run');
+  // (findByIdRepository.run as jest.Mock)
+  //   .mockResolvedValueOnce(origin)
+  //   .mockResolvedValueOnce(destination);
 
-  (findByIdRepository.run as jest.Mock)
-    .mockResolvedValueOnce(origin)
-    .mockResolvedValueOnce(destination);
+  // (updateRepository.run as jest.Mock)
+  //   .mockImplementation(async (account: Account) => account);
 
-  (updateRepository.run as jest.Mock)
-    .mockImplementation(async (account: Account) => account);
-
-  const makeTransferUseCase = new MakeTransferUseCase(findByIdRepository, updateRepository);
 
   return {
     origin,
@@ -103,8 +121,11 @@ export var makeSutTransfer = (originExists: boolean, destinationExists: boolean)
     depositEvent,
     withdrawEvent,
     transferEvent,
+    makeTransferUseCase,
+    makeDepositUseCase,
     updateRepositorySpy,
     findByIdRepositorySpy,
-    makeTransferUseCase,
+    makeDepositUseCaseSpy,
+    makeWithdrawUseCaseSpy,
   }
 }

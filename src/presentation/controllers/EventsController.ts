@@ -2,9 +2,9 @@ import { Request, Response } from "express";
 import { DepositEventDTO } from "@/presentation/dtos/DepositEventDTO";
 import { WithdrawEventDTO } from "@/presentation/dtos/WithdrawEventDTO";
 import { TransferEventDTO } from "@/presentation/dtos/TransferEventDTO";
-import { IMakeDepositUseCase } from "@/application/interfaces/useCases/IMakeDepositUseCase";
-import { IMakeWithdrawUseCase } from "@/application/interfaces/useCases/IMakeWithdrawUseCase";
-import { IMakeTransferUseCase } from "@/application/interfaces/useCases/IMakeTransferUseCase";
+import { IMakeDepositPresenter } from "@/application/interfaces/presenters/IMakeDepositPresenter";
+import { IMakeWithdrawPresenter } from "@/application/interfaces/presenters/IMakeWithdrawPresenter";
+import { IMakeTransferPresenter } from "@/application/interfaces/presenters/IMakeTransferPresenter";
 import { DepositResponseDTO } from "../dtos/DepositResponseDTO";
 import { WithdrawResponseDTO } from "../dtos/WithdrawResponseDTO";
 import { TransferResponseDTO } from "../dtos/TransferResponseDTO";
@@ -12,9 +12,9 @@ import { ResponseDTO } from "../dtos/ResponseDTO";
 
 export class EventsController {
   constructor(
-    private makeDepositUseCase: IMakeDepositUseCase,
-    private makeWithdrawUseCase: IMakeWithdrawUseCase,
-    private makeTransferUseCase: IMakeTransferUseCase,
+    private makeDepositPresenter: IMakeDepositPresenter,
+    private makeWithdrawPresenter: IMakeWithdrawPresenter,
+    private makeTransferPresenter: IMakeTransferPresenter,
   ) { }
 
 
@@ -25,17 +25,17 @@ export class EventsController {
     switch ((transaction as string).toLowerCase()) {
       case "deposit": {
         var depositEvent = new DepositEventDTO(data)
-        response = await this.makeDepositUseCase.run(depositEvent);
+        response = await this.makeDepositPresenter.run(depositEvent);
         break;
       }
       case "withdraw": {
         var withdrawEvent = new WithdrawEventDTO(data)
-        response = await this.makeWithdrawUseCase.run(withdrawEvent);
+        response = await this.makeWithdrawPresenter.run(withdrawEvent);
         break;
       }
       case "transfer": {
         var transferEvent = new TransferEventDTO(data)
-        response = await this.makeTransferUseCase.run(transferEvent);
+        response = await this.makeTransferPresenter.run(transferEvent);
         break;
       }
       default:

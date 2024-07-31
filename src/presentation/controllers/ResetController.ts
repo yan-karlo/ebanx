@@ -1,14 +1,14 @@
 import { Request, Response } from "express";
-import { IResetUseCase } from "@/application/interfaces/useCases/IResetUseCase";
+import { IResetPresenter } from "@/application/interfaces/presenters/IResetPresenter";
 
 export class ResetController {
   constructor(
-    private resetUseCase: IResetUseCase,
+    private resetPresenter: IResetPresenter,
   ) { }
 
 
   async run(req: Request, res: Response): Promise<void> {
-    var response = await this.resetUseCase.run();
+    var response = await this.resetPresenter.run();
     res.status(response.code).send(response.data);
   }
 }
