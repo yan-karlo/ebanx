@@ -10,3 +10,5 @@ app -> router -> factory -> controller -> presenter -> usecase -> repository
 
 ### To Do List
 - Move it to Docker
+- Introduce a ORM strategy
+- Connect to a database container
