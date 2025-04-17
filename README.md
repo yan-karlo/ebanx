@@ -7,3 +7,6 @@
 app -> database -> database strategy
 
 app -> router -> factory -> controller -> presenter -> usecase -> repository
+
+### To Do List
+- Move it to Docker
