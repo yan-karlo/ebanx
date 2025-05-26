@@ -124,11 +124,32 @@ jobs:
         run: |
           docker compose up --build --abort-on-container-exit
 
-      - name: Upload test report
-        uses: actions/upload-artifact@v3
+      - name: Timestamped copy of report and logs
+        run: |
+          TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+          PR_NUMBER=${{ github.event.pull_request.number }}
+
+          FOLDER="pr_${PR_NUMBER}_${TIMESTAMP}"
+          mkdir -p ./timestamped/$FOLDER
+
+          cp ./reports/ci-report.xml ./timestamped/$FOLDER/ci-report_pr${PR_NUMBER}_${TIMESTAMP}.xml
+
+          for file in ./logs/*; do
+            base=$(basename "$file")
+            cp "$file" "./timestamped/$FOLDER/${base%.*}_pr${PR_NUMBER}_${TIMESTAMP}.${base##*.}"
+          done
+
+      - name: Upload PR-stamped artifacts
+        uses: actions/upload-artifact@v4
         with:
-          name: schemathesis-report
-          path: ./reports/ci-report.xml
+          name: artifacts_pr${{ github.event.pull_request.number }}
+          path: ./timestamped/pr_${{ github.event.pull_request.number }}_*
+
+      - name: Upload raw logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs
+          path: ./logs
 ```
 
 ---
@@ -148,6 +169,23 @@ jobs:
 | **Use Case**            | Robust QA testing  | Smoke/contract checks | Frontend & sandbox mocking |
 | **Ease of Use**         | Medium             | High                  | High                       |
 | **CI Integration**      | ✅ Excellent        | ✅ Good                | ⚠️ Not recommended         |
+
+---
+
+### ✅ Tool Selection Rationale
+
+#### 🏆 Chosen Tool: **Schemathesis**
+
+Schemathesis was selected as the primary automated testing tool for this project based on:
+
+* **Complete support for OpenAPI 3.0**, including complex features like `oneOf`, `allOf`, and `discriminator`
+* **Deep validation** of responses against JSON Schemas defined in the spec
+* **Built-in fuzz testing** via the Hypothesis engine to simulate edge cases
+* **Robust CLI and excellent compatibility with CI/CD pipelines**, supporting JUnit output and rich reporting
+* **Clear error logging** and trace capabilities for debugging contract mismatches
+* **High scalability and flexibility**, making it ideal for future integration with production pipelines
+
+In short, Schemathesis provides **the most comprehensive and production-ready solution** for ensuring spec compliance and resilience in evolving APIs.
 
 ---
 
