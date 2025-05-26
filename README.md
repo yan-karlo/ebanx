@@ -151,6 +151,23 @@ jobs:
 
 ---
 
+### ✅ Tool Selection Rationale
+
+#### 🏆 Chosen Tool: **Schemathesis**
+
+Schemathesis was selected as the primary automated testing tool for this project based on:
+
+* **Complete support for OpenAPI 3.0**, including complex features like `oneOf`, `allOf`, and `discriminator`
+* **Deep validation** of responses against JSON Schemas defined in the spec
+* **Built-in fuzz testing** via the Hypothesis engine to simulate edge cases
+* **Robust CLI and excellent compatibility with CI/CD pipelines**, supporting JUnit output and rich reporting
+* **Clear error logging** and trace capabilities for debugging contract mismatches
+* **High scalability and flexibility**, making it ideal for future integration with production pipelines
+
+In short, Schemathesis provides **the most comprehensive and production-ready solution** for ensuring spec compliance and resilience in evolving APIs.
+
+---
+
 ### 📂 Project Structure
 
 ```
