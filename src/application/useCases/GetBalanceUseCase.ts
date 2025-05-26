@@ -5,8 +5,8 @@ import { IFindByIdRepository } from "@/application/interfaces/repositories/IFind
 export class GetBalanceUseCase implements IGetBalanceUseCase {
   constructor(private findByIdRepository: IFindByIdRepository<Account>) { }
 
-  async run(id: string): Promise<number | undefined> {
+  async run(id: string): Promise<Account | undefined> {
     var result = await this.findByIdRepository.run(id);
-    return result?.balance;
+    return result;
   }
 }

@@ -1,34 +1,67 @@
-interface IResponseDTO<T> {
-  code: number;       // http status code
-  data: T | null;     // the data to be sent back
-  isError: boolean;   // error flag
-  error?: {
-    msg?: string;        // msg about the error
-    originalMsg?: string // system error msg (if applicable)
-    stack?: string;      // where the error has occurred
-  }
-}
-export class ResponseDTO<T> implements IResponseDTO<T> {
-  public code: number = 0;
-  public data: T | null = null;
-  public isError: boolean = false;
-  public error: {
-    msg?: string;
-    originalMsg?: string
+export type ResponseDTO<S, F> = Success<S> | Failure<F>;
+
+export type FailData<F = unknown> = {
+  code: number;
+  message: string;
+  data: F | {
+    originalMessage: string;
     stack?: string;
-  } = {}
+  };
+};
+export type SuccessData<S = unknown> = {
+  code: number;
+  data: S ;
+};
 
-  constructor(event?: Partial<IResponseDTO<T>>) {
-    if (event) Object.assign(this, event);
-  }
+export class Success<S> {
+  readonly isError = false;
+  constructor(
+    public readonly code: number,
+    public readonly data: S
+  ) {}
 
-  errorToJson(): any {
+  toJSON(): SuccessData<S> {
     return {
-      error: {
-        msg: this.error?.msg,
-        originalMessage: this.error?.originalMsg,
-        stack: this.error?.stack,
-      }
-    }
+      code: this.code,
+      data: this.data,
+    };
   }
 }
+
+export class Failure<F = unknown> {
+  readonly isError = true;
+
+  constructor(
+    public readonly code: number,
+    public readonly message: string,
+    public readonly original: F | Error
+  ) {}
+
+  toJSON(): FailData<F> {
+    if (this.original instanceof Error) {
+      return {
+        code: this.code,
+        message: this.message,
+        data: {
+          originalMessage: this.original.message,
+          // stack: this.original.stack,
+        },
+      };
+    }
+
+    return {
+      code: this.code,
+      message: this.message,
+      data: this.original,
+    };
+  }
+}
+
+export const success = <S>(code: number, data: S): ResponseDTO<S, never> =>
+  new Success(code, data);
+
+export const failure = <F = Error>(
+  code: number,
+  error: F,
+  msg: string
+): ResponseDTO<never, F> => new Failure(code, msg, error);

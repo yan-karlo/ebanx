@@ -6,8 +6,8 @@ export class InMemoryCRUDStrategy<T extends { id: string }> implements IDatabase
   constructor() { }
 
   async findById(id: string): Promise<T | undefined> {
-    var resp = this.table.get(id);
-    return resp;
+    var resp = this.table.get(String(id));
+    return resp; 
   }
 
   async update(item: T): Promise<T | undefined> {

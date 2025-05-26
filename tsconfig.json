@@ -28,10 +28,31 @@
     "module": "node16",                                  /* Specify what module code is generated. */
     // "rootDir": "./",                                  /* Specify the root folder within your source files. */
     // "moduleResolution": "node10",                     /* Specify how TypeScript looks up a file from a given module specifier. */
-    // "baseUrl": "./",                                  /* Specify the base directory to resolve non-relative module names. */
+    "baseUrl": "./",                                  /* Specify the base directory to resolve non-relative module names. */
     "paths": {                                           /* Specify a set of entries that re-map imports to additional lookup locations. */
       "@/tests/*": ["./tests/*"],
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@/config": ["./src/config/*"],
+
+      "@/application": ["./src/application/*"],
+      "@interfaces": [".src/application/interfaces/*"],
+      "@/useCases": ["./src/application/useCases/*"],
+
+      "@/domain": ["./src/domain/*"],
+      "@/entities": ["./src/domain/entities/*"],
+      "@/repositories": ["./src/domain/repositories/*"],
+      
+      "@/infrastructure": ["./src/infrastructure/*"],
+      "@/database": ["./src/infrastructure/database/*"],
+      "@/factories": ["./src/infrastructure/factories/*"],
+      "@/middlewares": ["./src/infrastructure/middlewares/*"],
+      
+      "@/presentation": ["./src/presentation/*"],
+      "@/loggers": ["./src/presentation/loggers/*"],
+      "@/controllers": ["./src/presentation/controllers/*"],
+      "@/presenters": ["./src/presentation/presenters/*"],
+      "@/dtos": ["./src/presentation/dtos/*"],
+      "@/router": ["./src/presentation/router/*"],
     },
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
     // "typeRoots": [],                                  /* Specify multiple folders that act like './node_modules/@types'. */
