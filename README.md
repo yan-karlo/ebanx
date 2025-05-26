@@ -124,11 +124,32 @@ jobs:
         run: |
           docker compose up --build --abort-on-container-exit
 
-      - name: Upload test report
-        uses: actions/upload-artifact@v3
+      - name: Timestamped copy of report and logs
+        run: |
+          TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+          PR_NUMBER=${{ github.event.pull_request.number }}
+
+          FOLDER="pr_${PR_NUMBER}_${TIMESTAMP}"
+          mkdir -p ./timestamped/$FOLDER
+
+          cp ./reports/ci-report.xml ./timestamped/$FOLDER/ci-report_pr${PR_NUMBER}_${TIMESTAMP}.xml
+
+          for file in ./logs/*; do
+            base=$(basename "$file")
+            cp "$file" "./timestamped/$FOLDER/${base%.*}_pr${PR_NUMBER}_${TIMESTAMP}.${base##*.}"
+          done
+
+      - name: Upload PR-stamped artifacts
+        uses: actions/upload-artifact@v4
         with:
-          name: schemathesis-report
-          path: ./reports/ci-report.xml
+          name: artifacts_pr${{ github.event.pull_request.number }}
+          path: ./timestamped/pr_${{ github.event.pull_request.number }}_*
+
+      - name: Upload raw logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs
+          path: ./logs
 ```
 
 ---
