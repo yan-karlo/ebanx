@@ -10,8 +10,6 @@ export class BalanceController {
   async run(req: Request, res: Response): Promise<Response> {
     const id = (req.query.account_id as string) || '';
     var response = await this.getBalancePresenter.run(id);
-    return response.isError
-      ? res.status(response.code).json(response.errorToJson())
-      : res.status(response.code).json(response.data);
+    return res.status(response.code).json(response.toJSON())
   }
 }

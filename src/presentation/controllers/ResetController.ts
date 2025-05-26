@@ -2,12 +2,10 @@ import { Request, Response } from "express";
 import { IResetPresenter } from "@/application/interfaces/presenters/IResetPresenter";
 
 export class ResetController {
-  constructor(
-    private resetPresenter: IResetPresenter,
-  ) { }
+  constructor(private resetPresenter: IResetPresenter) {}
 
-  async run(req: Request, res: Response): Promise<void> {
-    var response = await this.resetPresenter.run();
-    res.status(response.code).send(response.data);
+  async run(req: Request, res: Response): Promise<Response> {
+    const response = await this.resetPresenter.run();
+    return res.status(response.code).json(response.toJSON());
   }
 }

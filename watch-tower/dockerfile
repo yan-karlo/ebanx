@@ -1,0 +1,23 @@
+FROM python:3.11-slim
+
+# Instalar dependências mínimas
+RUN apt-get update && apt-get install -y \
+    libreadline8 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Criar diretório de trabalho
+WORKDIR /app
+
+# Instalar Schemathesis
+RUN pip install schemathesis rich
+
+# Configurar bash para histórico funcional
+RUN echo 'export HISTFILE=/app/.bash_history' >> /root/.bashrc && \
+    echo 'export HISTSIZE=1000' >> /root/.bashrc && \
+    echo 'export HISTFILESIZE=2000' >> /root/.bashrc && \
+    echo 'set -o vi' >> /root/.bashrc && \
+    touch /app/.bash_history
+
+# Entrar direto no bash
+CMD ["bash"]

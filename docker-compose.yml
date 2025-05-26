@@ -1,0 +1,128 @@
+
+services:
+#######################################################################
+## API to be tested
+#######################################################################
+  app: 
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ebanx-app
+    ports:
+      - "4010:3000"
+    entrypoint: 
+      - sh 
+      - -c 
+      - | 
+        echo 'Iniciando EBANX app';  
+        npm run dev
+    healthcheck: # It's important to have a healthcheck to ensure the app is ready before running tests
+          test: ["CMD", "curl", "-f", "http://localhost:3000/ping"]
+          interval: 5s
+          timeout: 2s
+          retries: 10
+    restart: unless-stopped
+    networks:
+      - internal
+    volumes:
+      - ./logs:/usr/src/app/logs
+#######################################################################
+## Used to seed the app with initial data
+#######################################################################
+  curl: 
+    image: curlimages/curl:latest
+    container_name: ebanx-curl
+    ports:
+      - "3001:3001"
+    entrypoint: 
+      - sh 
+      - -c 
+      - | 
+        echo "EBANX app seeding...";
+        curl -X POST http://app:3000/reset;
+        curl -X POST http://app:3000/event -H "Content-Type: application/json" -d "{\"type\": \"deposit\",\"destination\": \"123\", \"amount\": 1000}";
+    depends_on:
+      app:
+        condition: service_healthy
+    networks:
+      - internal
+#######################################################################
+## Used to mock the API and test it based on the OpenAPI schema
+#######################################################################
+  schemathesis:
+    image: schemathesis/schemathesis:3.39.16
+
+    depends_on:
+      - app
+      - curl
+    command: >
+      run http://app:3000/openapi.yaml  
+      --verbosity trace
+      --junit-xml /reports/ci-report.xml 
+      --checks all 
+      --hypothesis-max-examples 50 
+      --output-truncate false 
+    volumes:
+      - ./openapi.yaml:/usr/src/app/openapi.yaml   
+      - ./reports:/reports
+    networks:
+      - internal
+#######################################################################
+## Used to mock the API and test it based on the OpenAPI schema
+#######################################################################
+  prism: 
+    platform: linux/amd64
+    image: stoplight/prism:4
+    depends_on:
+      - app
+      - schemathesis
+    command: 'mock -h 0.0.0.0 /tmp/openapi.yaml'
+    volumes:
+      - ./openapi.yaml:/tmp/openapi.yaml:ro
+    ports:
+      # Serve the mocked API locally as available on port 8080
+      - '8080:4010'
+    networks:
+      - internal
+#######################################################################
+## Used as a sandbox to interact to other containers and run command tests
+#######################################################################
+  watch-tower: 
+    build:
+      context: ./watch-tower
+    volumes:
+      - ./watch-tower:/app
+    depends_on:
+      - app
+      - schemathesis
+      - curl
+    tty: true
+    networks:
+      - internal
+
+#######################################################################
+## Runs Dredd against your local API server using the OpenAPI spec.
+#######################################################################
+
+#It's out of service, as it does not handles well some openApi 3.0 specs
+
+  # dredd: 
+  #   image: node:20
+  #   working_dir: /app
+  #   volumes:
+  #     - .:/app
+  #   command: >
+  #     sh -c "npm install && 
+  #            npm run dev & 
+  #            sleep 5 && 
+  #            npm run test:api"
+  #   depends_on:
+  #     - app
+  #     - curl
+  #     - schemathesis    
+  #   environment:
+  #     - NODE_ENV=test
+    
+networks:
+  internal:
+    driver: bridge

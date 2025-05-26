@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<testsuites disabled="0" errors="0" failures="0" tests="3" time="1.9659379180084215">
+	<testsuite disabled="0" errors="0" failures="0" name="schemathesis" skipped="0" tests="3" time="1.9659379180084215" hostname="362d2836abc0">
+		<testcase name="POST /event" time="1.734058"/>
+		<testcase name="GET /balance" time="0.228550"/>
+		<testcase name="POST /reset" time="0.003329"/>
+	</testsuite>
+</testsuites>

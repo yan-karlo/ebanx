@@ -9,8 +9,9 @@ export class TransferEventDTO implements ITransferEventDTO {
   public amount: number;
 
   constructor(data: ITransferEventDTO) {
+
     if (!data.amount || !data.destination || !data.origin) {
-      throw new Error('TransferEventDTO property is missing')
+      throw new Error(`TransferEventDTO property is missing: DTO: [${JSON.stringify(data)}]`)
     }
     this.origin = data.origin;
     this.amount = data.amount;

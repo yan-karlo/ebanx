@@ -1,36 +1,47 @@
 import cors from 'cors';
-import express, { Router } from 'express';
+import express from 'express';
 import helmet from 'helmet';
+import path from 'path';
+import fs from 'fs';
 import { EventsRouter } from './presentation/router/EventsRouter';
 import { BalanceRouter } from './presentation/router/BalanceRouter';
 import { ResetRouter } from './presentation/router/ResetRouter';
-import { balanceControllerFactory } from '@/infrastructure/factories/balanceControllerFactory';
-import { eventsControllerFactory } from '@/infrastructure/factories/eventsControllerFactory';
-import { resetControllerFactory } from '@/infrastructure/factories/resetControllerFactory';
-import { Database } from './infrastructure/database/Database';
-import { InMemoryCRUDStrategy } from './infrastructure/database/inMemory/inMemoryCRUDStrategy';
-import { Account } from './domain/entities/Account';
 import { databaseFactory } from './infrastructure/factories/databaseFactory';
+import { responseBodyMiddleware } from './infrastructure/middlewares/responseBody.middleware';
+import { requestLoggerMiddleware } from './infrastructure/middlewares/requestLoggerMiddleware';
 
-var app = express();
-// var router = Router();
-// var eventsRoutes = new EventsRouter();
-// var balanceRoutes = new BalanceRouter();
-// var resetRoutes = new ResetRouter();
+const PORT = 3000;
+const app = express();
 
+// Create logs directory if not exist (in logger, but safe here too)
+const logDir = path.resolve(__dirname, '../../logs');
+if (!fs.existsSync(logDir)) {
+  fs.mkdirSync(logDir, { recursive: true });
+}
 
-app.use(express.json());
+// Replace manual raw body middleware by express.json with verify option
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(responseBodyMiddleware);
+app.use(requestLoggerMiddleware);
+
 app.use(helmet());
 app.use(cors({ origin: '*' }));
-app.get('/ping', (_req, res) => res.json("pong"))
 
-var CRUDStrategy = new InMemoryCRUDStrategy<Account>()
-var database = databaseFactory('account');
-app.use((new BalanceRouter()).createRoutes(database))
-app.use((new ResetRouter()).createRoutes(database))
-app.use((new EventsRouter()).createRoutes(database))
-app.listen(3000, function () {
-  console.log('Server listening on port 3000!');
+app.get('/ping', (_req, res) => res.json("pong"));
+
+app.get('/openapi.yaml', (_req, res) => {
+  const specPath = path.join(__dirname, '../openapi.yaml');
+  res.setHeader('Content-Type', 'application/x-yaml');
+  fs.createReadStream(specPath).pipe(res);
+});
+
+const database = databaseFactory('account');
+app.use((new BalanceRouter()).createRoutes(database));
+app.use((new ResetRouter()).createRoutes(database));
+app.use((new EventsRouter()).createRoutes(database));
+
+app.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}!`);
 });

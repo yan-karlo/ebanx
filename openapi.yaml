@@ -1,0 +1,222 @@
+openapi: 3.0.3
+info:
+  title: EBANX Challenge API
+  version: 1.0.0
+  description: API for basic banking operations
+
+paths:
+  /event:
+    post:
+      summary: Handle account events (deposit, withdraw, transfer)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/DepositEvent'
+                - $ref: '#/components/schemas/WithdrawEvent'
+                - $ref: '#/components/schemas/TransferEvent'
+              discriminator:
+                propertyName: type
+      responses:
+        '200':
+          description: Event processed successfully (account already existed)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  data:
+                    type: object
+                    properties:
+                      destination:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            example: "123"
+                          balance:
+                            type: number
+                            example: 300.0
+        '201':
+          description: Account created and event processed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 201
+                  data:
+                    type: object
+                    properties:
+                      destination:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            example: "123"
+                          balance:
+                            type: number
+                            example: 100.5
+        '400':
+          $ref: '#/components/responses/InvalidEventPayload'
+        '404':
+          $ref: '#/components/responses/AccountNotFound'
+        '500':
+          description: Internal server error
+
+  /balance:
+    get:
+      summary: Retrieve account balance
+      parameters:
+        - name: account_id
+          in: query
+          required: true
+          schema:
+            type: integer
+          example: 123
+          description: Account ID to retrieve the balance
+      responses:
+        '200':
+          description: Current account balance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Balance'
+        '400':
+          $ref: '#/components/responses/InvalidEventPayload'
+        '404':
+          $ref: '#/components/responses/AccountNotFound'
+
+  /reset:
+    post:
+      summary: Reset all account data
+      responses:
+        '200':
+          description: Account data reset successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Account data reset successfully
+
+components:
+  schemas:
+    Balance:
+      type: object
+      properties:
+        balance:
+          type: number
+          format: float
+
+    DepositEvent:
+      type: object
+      required: [type, amount, destination]
+      properties:
+        type:
+          type: string
+          enum: [deposit]
+        amount:
+          type: number
+          minimum: 0.01
+          example: 100.5
+        destination:
+          type: string
+          minLength: 3
+          example: "123"
+
+    WithdrawEvent:
+      type: object
+      required: [type, amount, origin]
+      properties:
+        type:
+          type: string
+          enum: [withdraw]
+        amount:
+          type: number
+          minimum: 0.01
+          example: 100.5
+        origin:
+          type: string
+          minLength: 3
+          example: "123"
+
+    TransferEvent:
+      type: object
+      required: [type, amount, origin, destination]
+      properties:
+        type:
+          type: string
+          enum: [transfer]
+        amount:
+          type: number
+          minimum: 0.01
+          example: 100.5
+        origin:
+          type: string
+          minLength: 3
+          example: "123"
+        destination:
+          type: string
+          minLength: 3
+          example: "123"
+
+  responses:
+    InvalidEventPayload:
+      description: Invalid event payload
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                example: 400
+              message:
+                type: string
+                example: Invalid Event Payload
+              data:
+                type: object
+                properties:
+                  originalMessage:
+                    type: string
+                    example: "DepositEventDTO property is missing: {\"amount\":0}"
+                  stack:
+                    type: string
+                    example: |
+                      Error: Invalid payload
+                          at DepositEventDTO (/usr/src/app/src/presentation/dtos/DepositEventDTO.ts:10:13)
+
+    AccountNotFound:
+      description: Account not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                example: 404
+              message:
+                type: string
+                example: Account Not Found
+              data:
+                type: object
+                properties:
+                  originalMessage:
+                    type: string
+                    example: Account with ID 123 not found
+                  stack:
+                    type: string
+                    example: |
+                      Error: Account with ID 123 not found
+                          at GetBalanceUseCase.run (.../GetBalanceUseCase.ts:15:13)

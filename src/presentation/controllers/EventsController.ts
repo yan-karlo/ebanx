@@ -8,44 +8,52 @@ import { IMakeTransferPresenter } from "@/application/interfaces/presenters/IMak
 import { DepositResponseDTO } from "@/presentation/dtos/DepositResponseDTO";
 import { WithdrawResponseDTO } from "@/presentation/dtos/WithdrawResponseDTO";
 import { TransferResponseDTO } from "@/presentation/dtos/TransferResponseDTO";
-import { ResponseDTO } from "@/presentation/dtos/ResponseDTO";
+import { ResponseDTO, failure } from '@/presentation/dtos/ResponseDTO';
 
 export class EventsController {
   constructor(
     private makeDepositPresenter: IMakeDepositPresenter,
     private makeWithdrawPresenter: IMakeWithdrawPresenter,
     private makeTransferPresenter: IMakeTransferPresenter,
-  ) { }
+  ) {}
 
-
-  async run(req: Request, res: Response): Promise<any> {
+  async run(req: Request, res: Response): Promise<Response> {
     const { type: transaction, ...data } = req.body;
-    var response: ResponseDTO<DepositResponseDTO | WithdrawResponseDTO | TransferResponseDTO | number | string> | null = null;
 
-    switch ((transaction as string).toLowerCase()) {
-      case "deposit": {
-        var depositEvent = new DepositEventDTO(data);
-        response = await this.makeDepositPresenter.run(depositEvent);
-        break;
+    let response: ResponseDTO<
+      DepositResponseDTO | WithdrawResponseDTO | TransferResponseDTO,
+      Error
+    >;
+
+    try {
+      switch ((transaction as string)?.toLowerCase()) {
+        case "deposit": {
+          const depositEvent = new DepositEventDTO(data);
+          response = await this.makeDepositPresenter.run(depositEvent);
+          break;
+        }
+
+        case "withdraw": {
+          const withdrawEvent = new WithdrawEventDTO(data);
+          response = await this.makeWithdrawPresenter.run(withdrawEvent);
+          break;
+        }
+
+        case "transfer": {
+          const transferEvent = new TransferEventDTO(data);
+          response = await this.makeTransferPresenter.run(transferEvent);
+          break;
+        }
+
+        default: {
+          response = failure(400, new Error("Invalid transaction type"), `Invalid transaction type for [${transaction}]`);
+          break;
+        }
       }
-      case "withdraw": {
-        var withdrawEvent = new WithdrawEventDTO(data);
-        response = await this.makeWithdrawPresenter.run(withdrawEvent);
-        break;
-      }
-      case "transfer": {
-        var transferEvent = new TransferEventDTO(data);
-        response = await this.makeTransferPresenter.run(transferEvent);
-        break;
-      }
-      default:
-        response = new ResponseDTO<number>;
-        response.code = 400;
-        response.data = 0
+    } catch (err) {
+      response = failure(400, err as Error, "Invalid event payload");
     }
 
-    return response.isError
-      ? res.status(response.code).json(response.errorToJson())
-      : res.status(response.code).json(response.data);
+    return res.status(response.code).json(response.toJSON());
   }
 }

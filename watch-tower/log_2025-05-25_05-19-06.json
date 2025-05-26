@@ -1,0 +1,11 @@
+{
+  "method": "POST",
+  "path": "/reset",
+  "path_parameters": null,
+  "query": null,
+  "headers": null,
+  "cookies": null,
+  "body": null,
+  "response_status_code": 200,
+  "response_body": "{\"code\":200,\"data\":\"System reset successfully\"}"
+}
